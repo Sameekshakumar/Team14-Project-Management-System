@@ -14,4 +14,4 @@ assign and track tasks, and monitor progress in one place.
 - Sanjana Guttapally
 
 ## Status
-🚧 In development
+In development
