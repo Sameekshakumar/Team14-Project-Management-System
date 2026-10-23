@@ -2,6 +2,9 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 from rest_framework import status
 from .models import Workspace
+from datetime import timedelta
+from django.utils import timezone
+from .models import WorkspaceInvitation, WorkspaceMembership
 
 
 User = get_user_model()
@@ -109,3 +112,130 @@ class WorkspaceCreationTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(Workspace.objects.exists())
+
+
+class WorkspaceInvitationTests(APITestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(
+            email="owner@example.com",
+            password="Str0ng-Example-Pass!",
+        )
+        self.member = User.objects.create_user(
+            email="member@example.com",
+            password="Str0ng-Example-Pass!",
+        )
+        self.other_user = User.objects.create_user(
+            email="other@example.com",
+            password="Str0ng-Example-Pass!",
+        )
+
+        self.workspace = Workspace.objects.create(
+            name="Team Workspace",
+            description="Testing invitations",
+            owner=self.owner,
+        )
+
+        self.create_url = (
+            f"/api/auth/workspaces/{self.workspace.id}/invitations/"
+        )
+
+    def test_owner_can_create_invitation(self):
+        self.client.force_authenticate(user=self.owner)
+
+        response = self.client.post(self.create_url, {}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(response.data["token"])
+        self.assertTrue(
+            WorkspaceInvitation.objects.filter(
+                workspace=self.workspace,
+                created_by=self.owner,
+            ).exists()
+        )
+
+    def test_non_owner_cannot_create_invitation(self):
+        self.client.force_authenticate(user=self.other_user)
+
+        response = self.client.post(self.create_url, {}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(
+            WorkspaceInvitation.objects.filter(
+                workspace=self.workspace,
+            ).exists()
+        )
+
+    def test_member_can_accept_valid_invitation(self):
+        invitation = WorkspaceInvitation.objects.create(
+            workspace=self.workspace,
+            created_by=self.owner,
+            expires_at=timezone.now() + timedelta(days=7),
+        )
+        self.client.force_authenticate(user=self.member)
+
+        response = self.client.post(
+            f"/api/auth/invitations/{invitation.token}/accept/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(
+            WorkspaceMembership.objects.filter(
+                workspace=self.workspace,
+                user=self.member,
+                role="Member",
+            ).exists()
+        )
+
+        invitation.refresh_from_db()
+        self.assertEqual(invitation.accepted_by, self.member)
+        self.assertIsNotNone(invitation.accepted_at)
+
+    def test_expired_invitation_is_rejected(self):
+        invitation = WorkspaceInvitation.objects.create(
+            workspace=self.workspace,
+            created_by=self.owner,
+            expires_at=timezone.now() - timedelta(days=1),
+        )
+        self.client.force_authenticate(user=self.member)
+
+        response = self.client.post(
+            f"/api/auth/invitations/{invitation.token}/accept/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(
+            WorkspaceMembership.objects.filter(
+                workspace=self.workspace,
+                user=self.member,
+            ).exists()
+        )
+
+    def test_used_invitation_cannot_be_accepted_again(self):
+        invitation = WorkspaceInvitation.objects.create(
+            workspace=self.workspace,
+            created_by=self.owner,
+            expires_at=timezone.now() + timedelta(days=7),
+            accepted_by=self.other_user,
+            accepted_at=timezone.now(),
+        )
+        self.client.force_authenticate(user=self.member)
+
+        response = self.client.post(
+            f"/api/auth/invitations/{invitation.token}/accept/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(
+            WorkspaceMembership.objects.filter(
+                workspace=self.workspace,
+                user=self.member,
+            ).exists()
+        )
+
+

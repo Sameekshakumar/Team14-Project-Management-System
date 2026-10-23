@@ -2,6 +2,11 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 import uuid
 
+import secrets
+from datetime import timedelta
+
+from django.utils import timezone
+
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
@@ -61,3 +66,78 @@ class Workspace(models.Model):
 
     def __str__(self):
         return self.name
+
+def generate_invitation_token():
+    return secrets.token_urlsafe(32)
+
+
+class WorkspaceMembership(models.Model):
+    ROLE_CHOICES = [
+        ("Owner", "Owner"),
+        ("Admin", "Admin"),
+        ("Member", "Member"),
+        ("Viewer", "Viewer"),
+    ]
+
+    workspace = models.ForeignKey(
+        Workspace,
+        on_delete=models.CASCADE,
+        related_name="memberships",
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="workspace_memberships",
+    )
+    role = models.CharField(
+        max_length=10,
+        choices=ROLE_CHOICES,
+        default="Member",
+    )
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["workspace", "user"],
+                name="unique_workspace_membership",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user.email} - {self.workspace.name}"
+
+
+class WorkspaceInvitation(models.Model):
+    workspace = models.ForeignKey(
+        Workspace,
+        on_delete=models.CASCADE,
+        related_name="invitations",
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="created_workspace_invitations",
+    )
+    token = models.CharField(
+        max_length=64,
+        unique=True,
+        default=generate_invitation_token,
+        editable=False,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    accepted_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="accepted_workspace_invitations",
+    )
+
+    def is_expired(self):
+        return timezone.now() >= self.expires_at
+
+    def __str__(self):
+        return f"Invitation for {self.workspace.name}"
