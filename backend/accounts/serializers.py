@@ -3,7 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from.models import Workspace
 User = get_user_model()
 
 
@@ -61,3 +61,20 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ("id", "email")
         read_only_fields = fields
+
+from .models import Workspace
+
+
+class WorkspaceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Workspace
+        fields = ["id", "name", "description", "owner", "created_at"]
+        read_only_fields = ["id", "owner", "created_at"]
+
+    def validate_name(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError(
+                "Workspace name cannot be empty."
+            )
+        return value

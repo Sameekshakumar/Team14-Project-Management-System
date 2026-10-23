@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 from rest_framework import status
+from .models import Workspace
+
 
 User = get_user_model()
 
@@ -55,3 +57,55 @@ class RegistrationLoginTests(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class WorkspaceCreationTests(APITestCase):
+    def setUp(self):
+        self.workspace_url = "/api/auth/workspaces/"
+        self.user = User.objects.create_user(
+            email="owner@example.com",
+            password="Str0ng-Example-Pass!",
+        )
+
+    def test_unauthenticated_user_cannot_create_workspace(self):
+        response = self.client.post(
+            self.workspace_url,
+            {"name": "Team Workspace"},
+            format="json",
+        )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+        )
+
+    def test_authenticated_user_can_create_workspace(self):
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            self.workspace_url,
+            {
+                "name": "Team Workspace",
+                "description": "Workspace for our project team",
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["name"], "Team Workspace")
+        self.assertEqual(response.data["owner"], self.user.pk)
+
+        workspace = Workspace.objects.get(name="Team Workspace")
+        self.assertEqual(workspace.owner, self.user)
+        self.assertIsNotNone(workspace.id)
+
+    def test_empty_workspace_name_is_rejected(self):
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(
+            self.workspace_url,
+            {"name": "   "},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(Workspace.objects.exists())

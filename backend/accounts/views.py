@@ -2,8 +2,12 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
-
+from .serializers import (
+    RegisterSerializer,
+    LoginSerializer,
+    UserSerializer,
+    WorkspaceSerializer,
+)
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
@@ -38,3 +42,11 @@ class MeView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class WorkspaceCreateView(generics.CreateAPIView):
+    serializer_class = WorkspaceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
