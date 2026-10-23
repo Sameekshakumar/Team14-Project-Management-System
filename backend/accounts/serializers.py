@@ -67,7 +67,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ("id", "email")
         read_only_fields = fields
 
-from .models import Workspace
+from .models import Workspace, WorkspaceInvitation, WorkspaceMembership
+from .permissions import get_user_workspace_role
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
@@ -85,6 +86,21 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         return value
 
 
+class WorkspaceDetailSerializer(serializers.ModelSerializer):
+    current_user_role = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Workspace
+        fields = ["id", "name", "description", "owner", "created_at", "current_user_role"]
+        read_only_fields = ["id", "owner", "created_at", "current_user_role"]
+
+    def get_current_user_role(self, obj):
+        request = self.context.get("request")
+        if request and request.user:
+            return get_user_workspace_role(request.user, obj)
+        return None
+
+
 class WorkspaceInvitationSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkspaceInvitation
@@ -96,3 +112,22 @@ class WorkspaceInvitationSerializer(serializers.ModelSerializer):
             "expires_at",
         ]
         read_only_fields = fields
+
+
+class WorkspaceMembershipSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    user_id = serializers.IntegerField(source="user.id", read_only=True)
+    email = serializers.EmailField(source="user.email", read_only=True)
+
+    class Meta:
+        model = WorkspaceMembership
+        fields = ["id", "user", "user_id", "email", "role", "joined_at"]
+        read_only_fields = ["id", "user", "user_id", "email", "joined_at"]
+
+
+class RoleAssignmentSerializer(serializers.Serializer):
+    role = serializers.ChoiceField(
+        choices=WorkspaceMembership.ROLE_CHOICES,
+        error_messages={"invalid_choice": "Invalid role. Must be one of: Owner, Admin, Member, Viewer."},
+    )
+

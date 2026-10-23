@@ -239,3 +239,316 @@ class WorkspaceInvitationTests(APITestCase):
         )
 
 
+class RoleBasedAccessControlTests(APITestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(
+            email="owner@example.com",
+            password="Str0ng-Example-Pass!",
+        )
+        self.admin = User.objects.create_user(
+            email="admin@example.com",
+            password="Str0ng-Example-Pass!",
+        )
+        self.member = User.objects.create_user(
+            email="member@example.com",
+            password="Str0ng-Example-Pass!",
+        )
+        self.viewer = User.objects.create_user(
+            email="viewer@example.com",
+            password="Str0ng-Example-Pass!",
+        )
+        self.other_user = User.objects.create_user(
+            email="outsider@example.com",
+            password="Str0ng-Example-Pass!",
+        )
+
+        self.workspace = Workspace.objects.create(
+            name="Main Workspace",
+            description="RBAC Test Workspace",
+            owner=self.owner,
+        )
+        self.admin_membership = WorkspaceMembership.objects.create(
+            workspace=self.workspace,
+            user=self.admin,
+            role="Admin",
+        )
+        self.member_membership = WorkspaceMembership.objects.create(
+            workspace=self.workspace,
+            user=self.member,
+            role="Member",
+        )
+        self.viewer_membership = WorkspaceMembership.objects.create(
+            workspace=self.workspace,
+            user=self.viewer,
+            role="Viewer",
+        )
+
+        self.other_workspace = Workspace.objects.create(
+            name="Other Workspace",
+            description="Cross workspace test",
+            owner=self.other_user,
+        )
+
+    def test_workspace_creation_atomically_creates_owner_membership(self):
+        new_user = User.objects.create_user(
+            email="newcreator@example.com",
+            password="Str0ng-Example-Pass!",
+        )
+        self.client.force_authenticate(user=new_user)
+        response = self.client.post(
+            "/api/auth/workspaces/",
+            {"name": "Created By New User", "description": "Testing atomic owner membership"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        ws_id = response.data["id"]
+        ws = Workspace.objects.get(id=ws_id)
+        self.assertEqual(ws.owner, new_user)
+        membership = WorkspaceMembership.objects.filter(workspace=ws, user=new_user).first()
+        self.assertIsNotNone(membership)
+        self.assertEqual(membership.role, "Owner")
+
+    def test_owner_can_assign_admin_and_viewer_roles(self):
+        self.client.force_authenticate(user=self.owner)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.member.id}/"
+
+        # Owner assigns Admin
+        response = self.client.patch(url, {"role": "Admin"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["role"], "Admin")
+        self.member_membership.refresh_from_db()
+        self.assertEqual(self.member_membership.role, "Admin")
+
+        # Owner assigns Viewer
+        response = self.client.patch(url, {"role": "Viewer"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["role"], "Viewer")
+        self.member_membership.refresh_from_db()
+        self.assertEqual(self.member_membership.role, "Viewer")
+
+    def test_admin_can_assign_member_and_viewer_roles(self):
+        self.client.force_authenticate(user=self.admin)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.member.id}/"
+
+        response = self.client.patch(url, {"role": "Viewer"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.member_membership.refresh_from_db()
+        self.assertEqual(self.member_membership.role, "Viewer")
+
+        response = self.client.patch(url, {"role": "Member"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.member_membership.refresh_from_db()
+        self.assertEqual(self.member_membership.role, "Member")
+
+    def test_admin_cannot_assign_owner_role(self):
+        self.client.force_authenticate(user=self.admin)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.member.id}/"
+        response = self.client.patch(url, {"role": "Owner"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.member_membership.refresh_from_db()
+        self.assertNotEqual(self.member_membership.role, "Owner")
+
+    def test_admin_cannot_modify_owner_role(self):
+        self.client.force_authenticate(user=self.admin)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.owner.id}/"
+        response = self.client.patch(url, {"role": "Admin"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_member_and_viewer_cannot_assign_roles(self):
+        self.client.force_authenticate(user=self.member)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.viewer.id}/"
+        response = self.client.patch(url, {"role": "Member"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.client.force_authenticate(user=self.viewer)
+        response = self.client.patch(url, {"role": "Admin"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_user_cannot_self_escalate_role(self):
+        self.client.force_authenticate(user=self.member)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.member.id}/"
+        response = self.client.patch(url, {"role": "Admin"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.client.force_authenticate(user=self.admin)
+        admin_url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.admin.id}/"
+        response = self.client.patch(admin_url, {"role": "Owner"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_invalid_role_choice_is_rejected(self):
+        self.client.force_authenticate(user=self.owner)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.member.id}/"
+        response = self.client.patch(url, {"role": "SuperUser"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_non_existent_member_returns_404(self):
+        self.client.force_authenticate(user=self.owner)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.other_user.id}/"
+        response = self.client.patch(url, {"role": "Admin"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_cross_workspace_isolation(self):
+        self.client.force_authenticate(user=self.other_user)
+        detail_url = f"/api/auth/workspaces/{self.workspace.id}/"
+        response = self.client.get(detail_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        members_url = f"/api/auth/workspaces/{self.workspace.id}/members/"
+        response = self.client.get(members_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        assign_url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.member.id}/"
+        response = self.client.patch(assign_url, {"role": "Admin"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_viewer_read_only_and_write_restrictions(self):
+        self.client.force_authenticate(user=self.viewer)
+        ws_url = f"/api/auth/workspaces/{self.workspace.id}/"
+
+        get_res = self.client.get(ws_url)
+        self.assertEqual(get_res.status_code, status.HTTP_200_OK)
+        self.assertEqual(get_res.data["current_user_role"], "Viewer")
+
+        members_res = self.client.get(f"{ws_url}members/")
+        self.assertEqual(members_res.status_code, status.HTTP_200_OK)
+
+        patch_res = self.client.patch(ws_url, {"name": "Hacked Name"}, format="json")
+        self.assertEqual(patch_res.status_code, status.HTTP_403_FORBIDDEN)
+
+        del_res = self.client.delete(ws_url)
+        self.assertEqual(del_res.status_code, status.HTTP_403_FORBIDDEN)
+
+        invite_res = self.client.post(f"{ws_url}invitations/", {}, format="json")
+        self.assertEqual(invite_res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_member_write_restrictions_on_workspace(self):
+        self.client.force_authenticate(user=self.member)
+        ws_url = f"/api/auth/workspaces/{self.workspace.id}/"
+
+        self.assertEqual(self.client.get(ws_url).status_code, status.HTTP_200_OK)
+
+        self.assertEqual(
+            self.client.patch(ws_url, {"name": "New Name"}, format="json").status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+        self.assertEqual(
+            self.client.delete(ws_url).status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+        self.assertEqual(
+            self.client.post(f"{ws_url}invitations/", {}, format="json").status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+    def test_admin_and_owner_permissions(self):
+        self.client.force_authenticate(user=self.admin)
+        ws_url = f"/api/auth/workspaces/{self.workspace.id}/"
+        patch_res = self.client.patch(ws_url, {"description": "Updated by admin"}, format="json")
+        self.assertEqual(patch_res.status_code, status.HTTP_200_OK)
+        self.workspace.refresh_from_db()
+        self.assertEqual(self.workspace.description, "Updated by admin")
+
+        invite_res = self.client.post(f"{ws_url}invitations/", {}, format="json")
+        self.assertEqual(invite_res.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(self.client.delete(ws_url).status_code, status.HTTP_403_FORBIDDEN)
+
+        self.client.force_authenticate(user=self.owner)
+        self.assertEqual(self.client.delete(ws_url).status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Workspace.objects.filter(id=self.workspace.id).exists())
+
+    def test_atomic_ownership_transfer(self):
+        self.client.force_authenticate(user=self.owner)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.member.id}/"
+
+        response = self.client.patch(url, {"role": "Owner"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.workspace.refresh_from_db()
+        self.assertEqual(self.workspace.owner, self.member)
+
+        self.member_membership.refresh_from_db()
+        self.assertEqual(self.member_membership.role, "Owner")
+
+        former_owner_membership = WorkspaceMembership.objects.get(
+            workspace=self.workspace,
+            user=self.owner,
+        )
+        self.assertEqual(former_owner_membership.role, "Admin")
+
+        response = self.client.patch(
+            f"/api/auth/workspaces/{self.workspace.id}/members/{self.admin.id}/",
+            {"role": "Owner"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_demote_or_remove_owner_without_transfer(self):
+        self.client.force_authenticate(user=self.owner)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.owner.id}/"
+
+        response = self.client.patch(url, {"role": "Member"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        del_res = self.client.delete(url)
+        self.assertEqual(del_res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_member_removal_and_immediate_access_revocation(self):
+        self.client.force_authenticate(user=self.admin)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.member.id}/"
+
+        del_res = self.client.delete(url)
+        self.assertEqual(del_res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(
+            WorkspaceMembership.objects.filter(
+                workspace=self.workspace,
+                user=self.member,
+            ).exists()
+        )
+
+        self.client.force_authenticate(user=self.member)
+        res = self.client.get(f"/api/auth/workspaces/{self.workspace.id}/")
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_admin_cannot_remove_another_admin(self):
+        other_admin = User.objects.create_user(
+            email="admin2@example.com",
+            password="Str0ng-Example-Pass!",
+        )
+        WorkspaceMembership.objects.create(
+            workspace=self.workspace,
+            user=other_admin,
+            role="Admin",
+        )
+        self.client.force_authenticate(user=self.admin)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{other_admin.id}/"
+        del_res = self.client.delete(url)
+        self.assertEqual(del_res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_role_persistence_and_subsequent_permission_enforcement(self):
+        self.client.force_authenticate(user=self.owner)
+        url = f"/api/auth/workspaces/{self.workspace.id}/members/{self.viewer.id}/"
+        self.client.patch(url, {"role": "Member"}, format="json")
+
+        self.viewer_membership.refresh_from_db()
+        self.assertEqual(self.viewer_membership.role, "Member")
+
+        self.client.force_authenticate(user=self.viewer)
+        res = self.client.get(f"/api/auth/workspaces/{self.workspace.id}/")
+        self.assertEqual(res.data["current_user_role"], "Member")
+
+        self.client.force_authenticate(user=self.owner)
+        self.client.patch(url, {"role": "Viewer"}, format="json")
+
+        self.client.force_authenticate(user=self.viewer)
+        res = self.client.patch(
+            f"/api/auth/workspaces/{self.workspace.id}/",
+            {"name": "Changed"},
+            format="json",
+        )
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+
+
