@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16
+    container_name: team14-auth-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-team14_project}
+      POSTGRES_USER: ${POSTGRES_USER:-team14_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_only_change_me}
+    ports:
+      - "5433:5432"
+    volumes:
+      - team14_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-team14_user} -d ${POSTGRES_DB:-team14_project}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  team14_postgres_data:
