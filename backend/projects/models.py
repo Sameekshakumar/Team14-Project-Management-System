@@ -101,3 +101,75 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class TaskDependency(models.Model):
+    """
+    FR-TASK-04: `task` depends on `depends_on`, meaning `depends_on` must be
+    Done before `task` can be marked Done (SRS 6.5 business rules).
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name="dependencies",
+    )
+    depends_on = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name="dependents",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["task", "depends_on"],
+                name="unique_task_dependency",
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(task=models.F("depends_on")),
+                name="task_cannot_depend_on_itself",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.task.title} depends on {self.depends_on.title}"
+
+
+def dependency_creates_cycle(task, depends_on):
+    """
+    True if making `task` depend on `depends_on` would close a loop, i.e. if
+    `task` is already reachable by walking dependencies outward from
+    `depends_on`.
+
+    ponytail: iterative BFS issuing one query per visited task. Fine at
+    course-project scale; batch into a recursive CTE if a project ever carries
+    thousands of dependencies.
+    """
+    if task.pk == depends_on.pk:
+        return True
+
+    seen = set()
+    frontier = [depends_on.pk]
+    while frontier:
+        current = frontier.pop()
+        if current == task.pk:
+            return True
+        if current in seen:
+            continue
+        seen.add(current)
+        frontier.extend(
+            TaskDependency.objects.filter(task_id=current).values_list(
+                "depends_on_id", flat=True
+            )
+        )
+    return False
+
+
+def incomplete_dependencies(task):
+    """Prerequisite tasks of `task` that are not yet Done."""
+    return Task.objects.filter(
+        dependents__task=task,
+    ).exclude(status=Task.STATUS_DONE)

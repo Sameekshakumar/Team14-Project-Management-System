@@ -4,9 +4,9 @@ from rest_framework.exceptions import PermissionDenied
 
 from accounts.models import Workspace
 
-from .models import Project, Task
+from .models import Project, Task, TaskDependency
 from .permissions import require_member, require_write
-from .serializers import ProjectSerializer, TaskSerializer
+from .serializers import ProjectSerializer, TaskDependencySerializer, TaskSerializer
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -70,7 +70,7 @@ class TaskListCreateViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Task.objects.filter(project=self.get_project()).select_related(
             "assignee", "created_by", "project"
-        ).prefetch_related("subtasks")
+        ).prefetch_related("subtasks", "dependencies__depends_on")
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -94,7 +94,7 @@ class TaskDetailViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Task.objects.select_related(
             "assignee", "created_by", "project", "project__workspace"
-        ).prefetch_related("subtasks")
+        ).prefetch_related("subtasks", "dependencies__depends_on")
 
     def get_object(self):
         task = super().get_object()
@@ -113,4 +113,40 @@ class TaskDetailViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         require_write(self.request.user, instance.project.workspace)
+        instance.delete()
+
+
+class TaskDependencyViewSet(viewsets.ModelViewSet):
+    """FR-TASK-04: manage dependencies declared on a single task."""
+
+    serializer_class = TaskDependencySerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_url_kwarg = "dependency_id"
+    http_method_names = ["get", "post", "delete", "head", "options"]
+
+    def get_task(self):
+        task = get_object_or_404(
+            Task.objects.select_related("project__workspace"),
+            id=self.kwargs["task_id"],
+        )
+        require_member(self.request.user, task.project.workspace)
+        return task
+
+    def get_queryset(self):
+        return TaskDependency.objects.filter(task=self.get_task()).select_related(
+            "depends_on"
+        )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["task"] = self.get_task()
+        return context
+
+    def perform_create(self, serializer):
+        task = self.get_task()
+        require_write(self.request.user, task.project.workspace)
+        serializer.save(task=task)
+
+    def perform_destroy(self, instance):
+        require_write(self.request.user, instance.task.project.workspace)
         instance.delete()
