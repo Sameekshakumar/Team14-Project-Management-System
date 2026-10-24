@@ -4,7 +4,7 @@ from .views import (
     LoginView,
     MeView,
     RegisterView,
-    WorkspaceCreateView,
+    WorkspaceListCreateView,
     WorkspaceDetailView,
     WorkspaceInvitationAcceptView,
     WorkspaceInvitationCreateView,
@@ -17,7 +17,7 @@ urlpatterns = [
     path("login/", LoginView.as_view(), name="auth-login"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("me/", MeView.as_view(), name="auth-me"),
-    path("workspaces/", WorkspaceCreateView.as_view(), name="workspace-create"),
+    path("workspaces/", WorkspaceListCreateView.as_view(), name="workspace-list-create"),
     path(
         "workspaces/<uuid:workspace_id>/",
         WorkspaceDetailView.as_view(),

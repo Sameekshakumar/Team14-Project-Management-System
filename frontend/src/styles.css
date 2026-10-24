@@ -28,3 +28,57 @@ input::placeholder { color: #667b9a; }
 .footnote { margin: 18px 0 0; color: #8192ad; font-size: 11px; line-height: 1.55; }
 .copyright { color: #637592; font-size: 11px; margin: 18px 0 0; }
 @media (max-width: 480px) { .panel { padding: 25px 22px; } h1 { font-size: 25px; } }
+
+/* --- Layout for the authenticated screens (dashboard + Kanban board) --- */
+.page.wide { max-width: none; justify-content: flex-start; align-items: stretch; padding: 18px 24px 40px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.topbar-email { margin-left: auto; color: #a6b3c9; font-size: 13px; }
+.brand-mark.small { width: 34px; height: 34px; border-radius: 10px; font-size: 13px; }
+.link-button { border: 0; background: transparent; color: #a6f0c6; cursor: pointer; font-size: 13px; padding: 4px 0; }
+.link-button:hover { text-decoration: underline; }
+select { width: 100%; border: 1px solid #354562; background: #0c1425; color: #f5f8ff; padding: 11px 12px; border-radius: 9px; outline: none; }
+select:focus, .card:focus-visible { border-color: #83e2b0; box-shadow: 0 0 0 3px rgba(131,226,176,.12); }
+h2 { font: 700 15px Manrope, sans-serif; margin: 0 0 12px; letter-spacing: -.3px; }
+
+/* Dashboard */
+.dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+.dash-pane { padding: 22px; background: rgba(17, 25, 45, .94); border: 1px solid #2c3b58; border-radius: 16px; }
+.pick-list { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.pick { width: 100%; text-align: left; border: 1px solid #2c3b58; background: #0c1425; color: #eaf0fb; padding: 12px 14px; border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; }
+.pick:hover { border-color: #456089; }
+.pick.active { border-color: #83e2b0; background: #122b25; font-weight: 700; }
+.arrow { color: #8fa5c8; font-size: 12px; }
+.inline-form { display: flex; flex-direction: row; gap: 8px; align-items: stretch; }
+.inline-form input { flex: 1; }
+.submit.inline { margin-top: 0; padding: 11px 16px; white-space: nowrap; }
+.empty { color: #8192ad; font-size: 13px; margin: 0 0 14px; }
+
+/* Board */
+.board-screen { display: flex; flex-direction: column; gap: 16px; }
+.board-header h1 { font-size: 24px; margin: 6px 0 0; }
+.board-header .subheading { margin: 6px 0 0; }
+.task-form { padding: 16px 18px; background: rgba(17, 25, 45, .94); border: 1px solid #2c3b58; border-radius: 14px; }
+.task-form-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: end; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { margin: 0; }
+.columns { display: grid; grid-template-columns: repeat(4, minmax(210px, 1fr)); gap: 14px; align-items: start; overflow-x: auto; }
+.column { padding: 14px; background: rgba(12, 20, 37, .8); border: 1px solid #243451; border-radius: 14px; min-height: 180px; }
+.column.drop-target { border-color: #83e2b0; background: rgba(18, 43, 37, .7); }
+.count { color: #8fa5c8; font-weight: 500; }
+.card { background: #152037; border: 1px solid #2c3b58; border-radius: 11px; padding: 12px; margin-bottom: 10px; cursor: grab; }
+.card:active { cursor: grabbing; }
+.card h3 { font: 600 14px 'DM Sans', sans-serif; margin: 0 0 6px; line-height: 1.35; }
+.card-description { color: #a6b3c9; font-size: 12px; margin: 0 0 8px; line-height: 1.45; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.chip { font-size: 11px; padding: 3px 8px; border-radius: 999px; background: #223150; color: #cfe0f7; }
+.chip.muted { background: transparent; border: 1px solid #2c3b58; color: #8fa5c8; }
+.chip.blocked { background: #3a1b28; color: #ffc6c6; border: 1px solid #713348; font-weight: 700; }
+.subtasks { list-style: none; margin: 0 0 8px; padding: 0 0 0 10px; border-left: 2px solid #2c3b58; display: flex; flex-direction: column; gap: 4px; }
+.subtasks li { font-size: 12px; color: #a6b3c9; }
+.subtasks em { color: #8192ad; font-style: normal; font-size: 11px; }
+.move-select { padding: 7px 9px; font-size: 12px; }
+@media (max-width: 900px) {
+  .task-form-row { grid-template-columns: 1fr; }
+  .columns { grid-template-columns: repeat(4, minmax(200px, 1fr)); }
+}
