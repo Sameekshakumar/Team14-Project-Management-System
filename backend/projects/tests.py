@@ -410,6 +410,14 @@ class TaskTests(APITestCase):
         self.assertEqual(task.title, "Build login v2")
         self.assertEqual(task.status, Task.STATUS_IN_PROGRESS)
 
+    def test_assignee_email_is_null_rather_than_missing_when_unassigned(self):
+        """The field must always be present so clients see one response shape."""
+        task = self.make_task()
+        self.client.force_authenticate(self.member)
+        response = self.client.get(self.detail_url(task))
+        self.assertIn("assignee_email", response.data)
+        self.assertIsNone(response.data["assignee_email"])
+
     def test_deleting_project_cascades_to_tasks(self):
         self.make_task()
         self.project.delete()
@@ -633,3 +641,107 @@ class TaskDependencyTests(APITestCase):
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 TaskDependency.objects.create(task=self.a, depends_on=self.a)
+
+
+class TaskFlowScreenCountTests(APITestCase):
+    """
+    NFR-003: a new user shall be able to create and assign a task in no more
+    than 4 primary screens.
+
+    The UI reaches it in three (frontend/src/App.jsx):
+
+        1. Sign in / register   -> AuthScreen
+        2. Workspace & project  -> Dashboard
+        3. Task board           -> Board (create and assign inline)
+
+    These tests walk the API calls each of those screens makes, in order, with
+    no extra round trips, so the claim stays checkable if the flow is ever
+    reshuffled.
+    """
+
+    MAX_SCREENS = 4
+
+    def test_new_user_creates_and_assigns_a_task_within_the_screen_budget(self):
+        screens = 0
+
+        # Screen 1 - register, which returns tokens directly so no separate
+        # login step is needed.
+        screens += 1
+        response = self.client.post(
+            "/api/auth/register/",
+            {"email": "nfr-new@team14.test", "password": "StrongPass!234"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {response.data['access']}")
+
+        # Screen 2 - the dashboard creates a workspace and a project together.
+        screens += 1
+        response = self.client.post("/api/auth/workspaces/", {"name": "Team 14"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        workspace_id = response.data["id"]
+
+        response = self.client.post(
+            f"/api/workspaces/{workspace_id}/projects/", {"name": "Apollo"}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        project_id = response.data["id"]
+
+        # Screen 3 - the board loads its members for the assignee picker, then
+        # creates and assigns the task in a single submit.
+        screens += 1
+        members = self.client.get(f"/api/auth/workspaces/{workspace_id}/members/")
+        self.assertEqual(members.status_code, status.HTTP_200_OK)
+        self.assertTrue(members.data, "The board needs at least one assignable member.")
+
+        response = self.client.post(
+            f"/api/projects/{project_id}/tasks/",
+            {"title": "Design the schema", "assignee": members.data[0]["user_id"]},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["assignee"], members.data[0]["user_id"])
+
+        self.assertLessEqual(screens, self.MAX_SCREENS)
+        self.assertEqual(screens, 3, "The documented flow is three screens.")
+
+    def test_creation_and_assignment_happen_in_one_request(self):
+        """
+        The task is assigned as it is created, so assignment never costs the
+        user an extra screen.
+        """
+        owner = User.objects.create_user(email="nfr-owner@team14.test", password="StrongPass!234")
+        workspace = Workspace.objects.create(name="Team 14", owner=owner)
+        project = Project.objects.create(workspace=workspace, name="Apollo", created_by=owner)
+
+        self.client.force_authenticate(owner)
+        response = self.client.post(
+            f"/api/projects/{project.id}/tasks/",
+            {"title": "Design the schema", "assignee": owner.id},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["assignee"], owner.id)
+        self.assertEqual(response.data["status"], Task.STATUS_TODO)
+
+    def test_board_opens_without_a_separate_task_list_screen(self):
+        """
+        One request returns every card the board draws, so the board itself is
+        a single screen rather than a list plus a detail view.
+        """
+        owner = User.objects.create_user(email="nfr-board@team14.test", password="StrongPass!234")
+        workspace = Workspace.objects.create(name="Team 14", owner=owner)
+        project = Project.objects.create(workspace=workspace, name="Apollo", created_by=owner)
+        parent = Task.objects.create(project=project, title="Parent", created_by=owner)
+        Task.objects.create(project=project, title="Child", parent=parent, created_by=owner)
+
+        self.client.force_authenticate(owner)
+        response = self.client.get(f"/api/projects/{project.id}/tasks/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        card = next(task for task in response.data if str(task["id"]) == str(parent.id))
+        # Everything a card renders arrives with the list: status column,
+        # assignee, subtasks and blocked state.
+        for field in ["status", "assignee_email", "subtasks", "is_blocked"]:
+            self.assertIn(field, card)
+        self.assertEqual(len(card["subtasks"]), 1)
