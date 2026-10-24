@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 
 from accounts.models import Workspace, WorkspaceMembership
 
-from .models import Project, Task
+from .models import Project, Task, TaskDependency
 
 User = get_user_model()
 
@@ -414,3 +414,222 @@ class TaskTests(APITestCase):
         self.make_task()
         self.project.delete()
         self.assertEqual(Task.objects.count(), 0)
+
+
+class TaskDependencyTests(APITestCase):
+    """FR-TASK-04 plus the SRS 6.5 rule on completing blocked tasks."""
+
+    def setUp(self):
+        self.owner = User.objects.create_user(email="d-owner@team14.test", password="StrongPass!234")
+        self.member = User.objects.create_user(email="d-member@team14.test", password="StrongPass!234")
+        self.viewer = User.objects.create_user(email="d-viewer@team14.test", password="StrongPass!234")
+        self.outsider = User.objects.create_user(email="d-outsider@team14.test", password="StrongPass!234")
+
+        self.workspace = Workspace.objects.create(name="Team 14", owner=self.owner)
+        for user, role in [(self.member, "Member"), (self.viewer, "Viewer")]:
+            WorkspaceMembership.objects.update_or_create(
+                workspace=self.workspace, user=user, defaults={"role": role}
+            )
+        self.project = Project.objects.create(
+            workspace=self.workspace, name="Apollo", created_by=self.owner
+        )
+        self.a = self.make_task("Task A")
+        self.b = self.make_task("Task B")
+        self.c = self.make_task("Task C")
+
+    def make_task(self, title, **kwargs):
+        return Task.objects.create(
+            project=self.project, title=title, created_by=self.owner, **kwargs
+        )
+
+    def dep_url(self, task):
+        return reverse("task-dependency-list", args=[task.id])
+
+    def add_dependency(self, task, depends_on, user=None):
+        self.client.force_authenticate(user or self.member)
+        return self.client.post(
+            self.dep_url(task), {"depends_on": str(depends_on.id)}, format="json"
+        )
+
+    def link(self, task, depends_on):
+        return TaskDependency.objects.create(task=task, depends_on=depends_on)
+
+    # --- creating dependencies -------------------------------------------
+
+    def test_member_can_define_a_dependency_between_two_tasks(self):
+        response = self.add_dependency(self.b, self.a)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["depends_on"], self.a.id)
+        self.assertEqual(response.data["depends_on_title"], "Task A")
+        self.assertTrue(TaskDependency.objects.filter(task=self.b, depends_on=self.a).exists())
+
+    def test_unauthenticated_user_cannot_define_a_dependency(self):
+        response = self.client.post(
+            self.dep_url(self.b), {"depends_on": str(self.a.id)}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_viewer_cannot_define_or_delete_a_dependency(self):
+        response = self.add_dependency(self.b, self.a, user=self.viewer)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        dependency = self.link(self.b, self.a)
+        self.client.force_authenticate(self.viewer)
+        response = self.client.delete(
+            reverse("task-dependency-detail", args=[self.b.id, dependency.id])
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_non_member_cannot_define_or_list_dependencies(self):
+        self.assertEqual(
+            self.add_dependency(self.b, self.a, user=self.outsider).status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+        self.client.force_authenticate(self.outsider)
+        self.assertEqual(self.client.get(self.dep_url(self.b)).status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_dependency_can_be_listed_and_deleted(self):
+        dependency = self.link(self.b, self.a)
+        self.client.force_authenticate(self.member)
+
+        response = self.client.get(self.dep_url(self.b))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual([d["depends_on"] for d in response.data], [self.a.id])
+
+        response = self.client.delete(
+            reverse("task-dependency-detail", args=[self.b.id, dependency.id])
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(TaskDependency.objects.count(), 0)
+
+    def test_duplicate_dependency_is_rejected(self):
+        self.link(self.b, self.a)
+        response = self.add_dependency(self.b, self.a)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(TaskDependency.objects.count(), 1)
+
+    def test_dependency_must_be_within_the_same_project(self):
+        other_project = Project.objects.create(
+            workspace=self.workspace, name="Zeus", created_by=self.owner
+        )
+        foreign = Task.objects.create(
+            project=other_project, title="Elsewhere", created_by=self.owner
+        )
+        response = self.add_dependency(self.b, foreign)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(TaskDependency.objects.count(), 0)
+
+    # --- cycle detection (FR-TASK-04 negative tests) ---------------------
+
+    def test_self_dependency_is_rejected(self):
+        response = self.add_dependency(self.a, self.a)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(TaskDependency.objects.count(), 0)
+
+    def test_direct_two_task_cycle_is_rejected(self):
+        self.assertEqual(self.add_dependency(self.b, self.a).status_code, status.HTTP_201_CREATED)
+        response = self.add_dependency(self.a, self.b)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("circular", str(response.data).lower())
+        self.assertEqual(TaskDependency.objects.count(), 1)
+
+    def test_indirect_three_task_cycle_is_rejected(self):
+        # C -> B -> A, then A -> C would close the loop.
+        self.link(self.c, self.b)
+        self.link(self.b, self.a)
+        response = self.add_dependency(self.a, self.c)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("circular", str(response.data).lower())
+        self.assertEqual(TaskDependency.objects.count(), 2)
+
+    def test_long_chain_cycle_is_rejected(self):
+        chain = [self.make_task(f"Chain {i}") for i in range(6)]
+        for upstream, downstream in zip(chain, chain[1:]):
+            self.link(downstream, upstream)
+        response = self.add_dependency(chain[0], chain[-1])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("circular", str(response.data).lower())
+
+    def test_diamond_dependency_is_allowed(self):
+        # B and C both depend on A; D depends on both. No cycle.
+        d = self.make_task("Task D")
+        self.link(self.b, self.a)
+        self.link(self.c, self.a)
+        self.assertEqual(self.add_dependency(d, self.b).status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.add_dependency(d, self.c).status_code, status.HTTP_201_CREATED)
+        self.assertEqual(TaskDependency.objects.count(), 4)
+
+    def test_shared_prerequisite_is_not_mistaken_for_a_cycle(self):
+        self.link(self.b, self.a)
+        self.link(self.c, self.a)
+        self.assertEqual(self.add_dependency(self.c, self.b).status_code, status.HTTP_201_CREATED)
+
+    # --- SRS 6.5: completing a blocked task ------------------------------
+
+    def test_task_cannot_be_marked_done_while_a_dependency_is_incomplete(self):
+        self.link(self.b, self.a)
+        self.client.force_authenticate(self.member)
+        response = self.client.patch(
+            reverse("task-detail", args=[self.b.id]), {"status": "Done"}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("Task A", str(response.data))
+        self.b.refresh_from_db()
+        self.assertNotEqual(self.b.status, Task.STATUS_DONE)
+
+    def test_task_can_be_marked_done_once_dependencies_are_done(self):
+        self.link(self.b, self.a)
+        self.a.status = Task.STATUS_DONE
+        self.a.save(update_fields=["status"])
+
+        self.client.force_authenticate(self.member)
+        response = self.client.patch(
+            reverse("task-detail", args=[self.b.id]), {"status": "Done"}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.b.refresh_from_db()
+        self.assertEqual(self.b.status, Task.STATUS_DONE)
+
+    def test_blocked_task_can_still_move_to_other_columns(self):
+        self.link(self.b, self.a)
+        self.client.force_authenticate(self.member)
+        response = self.client.patch(
+            reverse("task-detail", args=[self.b.id]),
+            {"status": Task.STATUS_IN_PROGRESS},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_task_exposes_blocked_state_and_prerequisites(self):
+        self.link(self.b, self.a)
+        self.client.force_authenticate(self.member)
+
+        response = self.client.get(reverse("task-detail", args=[self.b.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["is_blocked"])
+        self.assertEqual(response.data["depends_on"], [self.a.id])
+
+        response = self.client.get(reverse("task-detail", args=[self.a.id]))
+        self.assertFalse(response.data["is_blocked"])
+        self.assertEqual(response.data["depends_on"], [])
+
+    def test_unblocked_once_prerequisite_is_done(self):
+        self.link(self.b, self.a)
+        self.a.status = Task.STATUS_DONE
+        self.a.save(update_fields=["status"])
+        self.client.force_authenticate(self.member)
+        response = self.client.get(reverse("task-detail", args=[self.b.id]))
+        self.assertFalse(response.data["is_blocked"])
+
+    def test_deleting_a_task_removes_its_dependency_edges(self):
+        self.link(self.b, self.a)
+        self.link(self.c, self.a)
+        self.a.delete()
+        self.assertEqual(TaskDependency.objects.count(), 0)
+
+    def test_self_dependency_is_blocked_at_database_level(self):
+        from django.db import IntegrityError, transaction
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                TaskDependency.objects.create(task=self.a, depends_on=self.a)

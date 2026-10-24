@@ -2,7 +2,13 @@ from rest_framework import serializers
 
 from accounts.permissions import get_user_workspace_role
 
-from .models import Project, Task
+from .models import (
+    Project,
+    Task,
+    TaskDependency,
+    dependency_creates_cycle,
+    incomplete_dependencies,
+)
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -45,6 +51,8 @@ class SubtaskSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     subtasks = SubtaskSerializer(many=True, read_only=True)
     assignee_email = serializers.EmailField(source="assignee.email", read_only=True)
+    depends_on = serializers.SerializerMethodField()
+    is_blocked = serializers.SerializerMethodField()
 
     class Meta:
         model = Task
@@ -61,11 +69,26 @@ class TaskSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "subtasks",
+            "depends_on",
+            "is_blocked",
         ]
         read_only_fields = ["id", "project", "created_by", "created_at", "updated_at"]
 
     def get_project(self):
         return self.context.get("project") or getattr(self.instance, "project", None)
+
+    def get_depends_on(self, obj):
+        return [dependency.depends_on_id for dependency in obj.dependencies.all()]
+
+    def get_is_blocked(self, obj):
+        """
+        True while any prerequisite task is still open. Reads the prefetched
+        dependencies so listing a board stays at a constant query count.
+        """
+        return any(
+            dependency.depends_on.status != Task.STATUS_DONE
+            for dependency in obj.dependencies.all()
+        )
 
     def validate_title(self, value):
         value = value.strip()
@@ -108,4 +131,43 @@ class TaskSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"parent": "A task with subtasks cannot become a subtask itself."}
             )
+
+        # SRS 6.5: a task cannot be marked Done while it has an incomplete
+        # dependency.
+        if attrs.get("status") == Task.STATUS_DONE and self.instance:
+            blockers = incomplete_dependencies(self.instance)
+            if blockers.exists():
+                titles = ", ".join(blockers.values_list("title", flat=True))
+                raise serializers.ValidationError(
+                    {"status": f"Cannot mark Done while these dependencies are incomplete: {titles}."}
+                )
         return attrs
+
+
+class TaskDependencySerializer(serializers.ModelSerializer):
+    depends_on_title = serializers.CharField(source="depends_on.title", read_only=True)
+    depends_on_status = serializers.CharField(source="depends_on.status", read_only=True)
+
+    class Meta:
+        model = TaskDependency
+        fields = ["id", "task", "depends_on", "depends_on_title", "depends_on_status", "created_at"]
+        read_only_fields = ["id", "task", "created_at"]
+
+    def validate_depends_on(self, value):
+        task = self.context.get("task")
+        if task is None:
+            return value
+        if value.pk == task.pk:
+            raise serializers.ValidationError("A task cannot depend on itself.")
+        if value.project_id != task.project_id:
+            raise serializers.ValidationError(
+                "A dependency must be between two tasks in the same project."
+            )
+        if TaskDependency.objects.filter(task=task, depends_on=value).exists():
+            raise serializers.ValidationError("This dependency already exists.")
+        # FR-TASK-04: reject an edge that would create a cycle.
+        if dependency_creates_cycle(task, value):
+            raise serializers.ValidationError(
+                "This dependency would create a circular dependency."
+            )
+        return value
