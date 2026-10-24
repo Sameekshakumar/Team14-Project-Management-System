@@ -50,7 +50,7 @@ class SubtaskSerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     subtasks = SubtaskSerializer(many=True, read_only=True)
-    assignee_email = serializers.EmailField(source="assignee.email", read_only=True)
+    assignee_email = serializers.EmailField(source="assignee.email", read_only=True, default=None)
     depends_on = serializers.SerializerMethodField()
     is_blocked = serializers.SerializerMethodField()
 
