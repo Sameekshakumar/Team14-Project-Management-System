@@ -1,9 +1,16 @@
 from django.urls import path
 
-from .views import ProjectViewSet
+from .views import ProjectViewSet, TaskDetailViewSet, TaskListCreateViewSet
 
 project_list = ProjectViewSet.as_view({"get": "list", "post": "create"})
 project_detail = ProjectViewSet.as_view({
+    "get": "retrieve",
+    "patch": "partial_update",
+    "put": "update",
+    "delete": "destroy",
+})
+task_list = TaskListCreateViewSet.as_view({"get": "list", "post": "create"})
+task_detail = TaskDetailViewSet.as_view({
     "get": "retrieve",
     "patch": "partial_update",
     "put": "update",
@@ -20,5 +27,15 @@ urlpatterns = [
         "workspaces/<uuid:workspace_id>/projects/<uuid:project_id>/",
         project_detail,
         name="project-detail",
+    ),
+    path(
+        "projects/<uuid:project_id>/tasks/",
+        task_list,
+        name="task-list",
+    ),
+    path(
+        "tasks/<uuid:task_id>/",
+        task_detail,
+        name="task-detail",
     ),
 ]
