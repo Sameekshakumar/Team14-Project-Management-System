@@ -1,5 +1,6 @@
 from datetime import timedelta
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import exceptions, generics, permissions, status
@@ -58,9 +59,16 @@ class MeView(generics.RetrieveAPIView):
         return self.request.user
 
 
-class WorkspaceCreateView(generics.CreateAPIView):
+class WorkspaceListCreateView(generics.ListCreateAPIView):
     serializer_class = WorkspaceSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Workspaces the caller owns or belongs to; owners normally also hold a
+        # membership row, so de-duplicate the union.
+        return Workspace.objects.filter(
+            Q(owner=self.request.user) | Q(memberships__user=self.request.user)
+        ).distinct().order_by("created_at")
 
     @transaction.atomic
     def perform_create(self, serializer):

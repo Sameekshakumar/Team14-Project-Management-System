@@ -552,3 +552,49 @@ class RoleBasedAccessControlTests(APITestCase):
 
 
 
+
+
+class WorkspaceListTests(APITestCase):
+    """The board UI needs to enumerate the workspaces a user can open."""
+
+    def setUp(self):
+        self.owner = User.objects.create_user(email="wl-owner@team14.test", password="StrongPass!234")
+        self.member = User.objects.create_user(email="wl-member@team14.test", password="StrongPass!234")
+        self.outsider = User.objects.create_user(email="wl-outsider@team14.test", password="StrongPass!234")
+
+        self.owned = Workspace.objects.create(name="Owned", owner=self.owner)
+        self.joined = Workspace.objects.create(name="Joined", owner=self.outsider)
+        WorkspaceMembership.objects.update_or_create(
+            workspace=self.joined, user=self.member, defaults={"role": "Member"}
+        )
+        self.url = "/api/auth/workspaces/"
+
+    def test_unauthenticated_user_cannot_list_workspaces(self):
+        self.assertEqual(self.client.get(self.url).status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_owner_sees_owned_workspace_once(self):
+        self.client.force_authenticate(self.owner)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual([w["name"] for w in response.data], ["Owned"])
+
+    def test_member_sees_only_workspaces_they_belong_to(self):
+        self.client.force_authenticate(self.member)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual([w["name"] for w in response.data], ["Joined"])
+
+    def test_user_with_no_workspaces_gets_empty_list(self):
+        loner = User.objects.create_user(email="wl-loner@team14.test", password="StrongPass!234")
+        self.client.force_authenticate(loner)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+    def test_creating_a_workspace_still_works(self):
+        self.client.force_authenticate(self.member)
+        response = self.client.post(self.url, {"name": "Fresh"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            sorted(w["name"] for w in self.client.get(self.url).data), ["Fresh", "Joined"]
+        )
