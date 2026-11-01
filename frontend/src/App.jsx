@@ -47,7 +47,7 @@ export default function App() {
           <button className="tab" onClick={() => setProject(null)}>Back to projects</button>
         </nav>
         {projectTab === 'board'
-          ? <Board project={project} workspaceId={workspaceId} onBack={() => setProject(null)} />
+          ? <Board project={project} workspaceId={workspaceId} userId={user.id} onBack={() => setProject(null)} />
           : <Planning key={project.id} project={project} workspaceId={workspaceId} />}
 
       </main>
