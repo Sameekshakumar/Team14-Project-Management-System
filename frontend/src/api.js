@@ -128,6 +128,11 @@ export const api = {
   createBacklog: (projectId, payload) => request(`/api/v1/projects/${projectId}/backlog-items/`, { method: 'POST', body: payload }),
 
   tasks: (projectId) => request(`/api/projects/${projectId}/tasks/`),
+  comments: (taskId) => request(`/api/tasks/${taskId}/comments/`),
+  createComment: (taskId, body) => request(`/api/tasks/${taskId}/comments/`, { method: 'POST', body: { body } }),
+  updateComment: (taskId, commentId, body) => request(`/api/tasks/${taskId}/comments/${commentId}/`, { method: 'PATCH', body: { body } }),
+  deleteComment: (taskId, commentId) => request(`/api/tasks/${taskId}/comments/${commentId}/`, { method: 'DELETE' }),
+  searchProjectMembers: (projectId, query) => request(`/api/projects/${projectId}/members/search/?q=${encodeURIComponent(query)}`),
   createTask: (projectId, payload) =>
     request(`/api/projects/${projectId}/tasks/`, { method: 'POST', body: payload }),
   updateTask: (taskId, payload) =>

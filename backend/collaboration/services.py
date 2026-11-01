@@ -60,3 +60,24 @@ def record_task_deletion(*, task, actor):
     publish_project_event(task.project_id, "task_deleted", {
         "task_id": str(task.pk), "actor": actor.pk, "title": task.title,
     })
+
+
+def record_comment_change(*, comment, event_type):
+    payload = {
+        "task_id": str(comment.task_id),
+        "actor": comment.author_id,
+        "comment": {
+            "id": comment.pk,
+            "task_id": str(comment.task_id),
+            "author": comment.author_id,
+            "author_email": comment.author.email if comment.author_id else None,
+            "body": comment.body,
+            "mentioned_users": [
+                {"id": mention.mentioned_user_id, "email": mention.mentioned_user.email}
+                for mention in comment.mentions.select_related("mentioned_user")
+            ],
+            "created_at": comment.created_at.isoformat(),
+            "updated_at": comment.updated_at.isoformat(),
+        },
+    }
+    publish_project_event(comment.task.project_id, event_type, payload)
