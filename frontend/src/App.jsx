@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Board from './Board.jsx'
+import Planning from './Planning.jsx'
 import { api, tokens } from './api.js'
 import NotificationBell from './NotificationBell.jsx'
 
@@ -11,6 +12,7 @@ import NotificationBell from './NotificationBell.jsx'
 export default function App() {
   const [user, setUser] = useState(null)
   const [checking, setChecking] = useState(Boolean(tokens.access))
+  const [projectTab, setProjectTab] = useState('board')
   const [project, setProject] = useState(null)
   const [workspaceId, setWorkspaceId] = useState(null)
 
@@ -55,7 +57,15 @@ export default function App() {
     return (
       <main className="page wide">
         <TopBar email={user.email} onSignOut={signOut} />
-        <Board project={project} workspaceId={workspaceId} userId={user.id} onBack={() => setProject(null)} />
+        <nav className="tabs" aria-label="Project views">
+          <button className={projectTab === 'board' ? 'tab active' : 'tab'} onClick={() => setProjectTab('board')}>Board</button>
+          <button className={projectTab === 'planning' ? 'tab active' : 'tab'} onClick={() => setProjectTab('planning')}>Backlog & sprints</button>
+          <button className="tab" onClick={() => setProject(null)}>Back to projects</button>
+        </nav>
+        {projectTab === 'board'
+          ? <Board project={project} workspaceId={workspaceId} userId={user.id} onBack={() => setProject(null)} />
+          : <Planning key={project.id} project={project} workspaceId={workspaceId} />}
+
       </main>
     )
   }
