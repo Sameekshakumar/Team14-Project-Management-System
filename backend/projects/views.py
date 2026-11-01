@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.db import transaction
 from rest_framework import permissions, viewsets
 from rest_framework.exceptions import PermissionDenied
@@ -83,6 +84,9 @@ class TaskListCreateViewSet(viewsets.ModelViewSet):
         require_write(self.request.user, project.workspace)
         with transaction.atomic():
             task = serializer.save(project=project, created_by=self.request.user)
+            if task.status == Task.STATUS_DONE and task.completed_at is None:
+                task.completed_at = timezone.now()
+                task.save(update_fields=["completed_at"])
             from collaboration.services import record_task_change
             record_task_change(
                 task=task, actor=self.request.user, created=True,
@@ -122,7 +126,13 @@ class TaskDetailViewSet(viewsets.ModelViewSet):
             "assignee_id": instance.assignee_id,
         }
         with transaction.atomic():
-            task = serializer.save()
+            new_status = serializer.validated_data.get("status", instance.status)
+            if new_status == Task.STATUS_DONE and instance.status != Task.STATUS_DONE:
+                task = serializer.save(completed_at=timezone.now())
+            elif instance.status == Task.STATUS_DONE and new_status != Task.STATUS_DONE:
+                task = serializer.save(completed_at=None)
+            else:
+                task = serializer.save()
             from collaboration.services import record_task_change
             record_task_change(
                 task=task, actor=self.request.user, created=False, previous=previous,
