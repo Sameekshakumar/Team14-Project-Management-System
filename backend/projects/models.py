@@ -75,6 +75,7 @@ class Task(models.Model):
         choices=STATUS_CHOICES,
         default=STATUS_TODO,
     )
+    sprint = models.ForeignKey("sprints.Sprint", on_delete=models.SET_NULL, null=True, blank=True, related_name="items")
     story_points = models.PositiveIntegerField(null=True, blank=True)
     assignee = models.ForeignKey(
         settings.AUTH_USER_MODEL,
