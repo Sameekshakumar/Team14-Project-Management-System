@@ -72,10 +72,18 @@ from .permissions import get_user_workspace_role
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
+    current_user_role = serializers.SerializerMethodField()
+
     class Meta:
         model = Workspace
-        fields = ["id", "name", "description", "owner", "created_at"]
-        read_only_fields = ["id", "owner", "created_at"]
+        fields = ["id", "name", "description", "owner", "created_at", "current_user_role"]
+        read_only_fields = ["id", "owner", "created_at", "current_user_role"]
+
+    def get_current_user_role(self, obj):
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            return get_user_workspace_role(request.user, obj)
+        return None
 
     def validate_name(self, value):
         value = value.strip()

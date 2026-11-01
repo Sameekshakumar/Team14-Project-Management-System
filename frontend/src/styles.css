@@ -82,3 +82,220 @@ h2 { font: 700 15px Manrope, sans-serif; margin: 0 0 12px; letter-spacing: -.3px
   .task-form-row { grid-template-columns: 1fr; }
   .columns { grid-template-columns: repeat(4, minmax(200px, 1fr)); }
 }
+
+.planning-item { padding: 1rem 0; border-bottom: 1px solid #d5dce5; }
+.planning-item h3 { margin-bottom: .4rem; }
+/* Issue #13: backlog form and item spacing */
+.planning-pane {
+  padding: 28px;
+}
+
+.planning-pane > h2 {
+  margin-bottom: 24px;
+}
+
+.planning-pane > form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 900px;
+  margin-bottom: 28px;
+}
+
+.planning-pane label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.planning-pane input,
+.planning-pane textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid #354562;
+  border-radius: 9px;
+  padding: 12px 14px;
+  background: #0c1425;
+  color: #f5f8ff;
+  font: inherit;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.planning-pane textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.planning-pane input:focus,
+.planning-pane textarea:focus {
+  outline: none;
+  border-color: #83e2b0;
+  box-shadow: 0 0 0 3px rgba(131, 226, 176, 0.12);
+}
+
+.planning-pane .submit.inline {
+  align-self: flex-start;
+  margin-top: 0;
+  padding: 12px 20px;
+  line-height: 1.5;
+  white-space: normal;
+}
+
+.planning-pane > p {
+  margin: 16px 0 0;
+  line-height: 1.6;
+}
+
+.planning-pane .notice {
+  margin: 0 0 20px;
+}
+
+.planning-pane .planning-item {
+  margin-top: 16px;
+  padding: 20px;
+  border: 1px solid #2c3b58;
+  border-radius: 12px;
+  background: #0c1425;
+  overflow-wrap: anywhere;
+}
+
+.planning-pane .planning-item h3 {
+  margin: 0 0 10px;
+}
+
+.planning-pane .planning-item p {
+  margin: 0 0 12px;
+  color: #a6b3c9;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.planning-pane .inline-form {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.planning-pane .inline-form input {
+  flex: 0 1 180px;
+}
+
+@media (max-width: 600px) {
+  .planning-pane {
+    padding: 18px;
+  }
+
+  .planning-pane .inline-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .planning-pane .inline-form input {
+    flex: none;
+    width: 100%;
+  }
+
+  .planning-pane .submit.inline {
+    align-self: stretch;
+    width: 100%;
+  }
+}
+
+/* Issue #14: scoped sprint planning layout */
+.planning-pane .planning-forms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.planning-pane .planning-create-form {
+  min-width: 0;
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid #2c3b58;
+  border-radius: 12px;
+  background: #0c1425;
+}
+.planning-pane .planning-create-form h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+.planning-pane .planning-hint {
+  margin: 0;
+  color: #a6b3c9;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.planning-pane .planning-section-title {
+  margin: 30px 0 16px;
+  font-size: 18px;
+}
+.planning-pane > .planning-assignment {
+  max-width: none;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.planning-pane .planning-assignment select {
+  flex: 1 1 240px;
+  min-width: 0;
+  max-width: 460px;
+  font: inherit;
+  color-scheme: dark;
+}
+.planning-pane label.planning-selection {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+.planning-pane .planning-selection input[type="checkbox"] {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  accent-color: #a6f0c6;
+}
+.planning-pane input[type="date"] {
+  color-scheme: dark;
+}
+.planning-pane .planning-sprint-task {
+  margin: 16px 0;
+  padding: 16px;
+  border-left: 3px solid #354562;
+  background: #11192d;
+  border-radius: 6px;
+}
+.planning-pane .planning-sprint-task .link-button {
+  margin-top: 12px;
+}
+@media (max-width: 900px) {
+  .planning-pane .planning-forms {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .planning-pane > .planning-assignment {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .planning-pane .planning-assignment select {
+    flex: none;
+    max-width: none;
+  }
+  .planning-pane .planning-create-form {
+    padding: 16px;
+  }
+}
