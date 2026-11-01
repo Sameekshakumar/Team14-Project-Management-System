@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api, STATUSES } from './api.js'
 import { useProjectSocket } from './useProjectSocket.js'
+import TaskComments from './TaskComments.jsx'
 
 /**
  * FR-TASK-03: tasks grouped into status columns, movable by drag and drop.
@@ -16,12 +17,18 @@ export default function Board({ project, workspaceId, userId, onBack }) {
   const [dragOver, setDragOver] = useState(null)
   const [draft, setDraft] = useState({ title: '', description: '', assignee: '', parent: '' })
   const [saving, setSaving] = useState(false)
+  const [openCommentsTask, setOpenCommentsTask] = useState(null)
+  const [commentRevision, setCommentRevision] = useState(0)
 
   const refreshTasks = useCallback(() => {
     api.tasks(project.id).then(setTasks).catch(err => setError(err.message))
   }, [project.id])
 
   const handleSocketEvent = useCallback(event => {
+    if (event.type?.startsWith('comment_')) {
+      if (String(event.actor) !== String(userId)) setCommentRevision(value => value + 1)
+      return
+    }
     // REST responses already update the initiating user's board. Ignore its
     // echo; other members refresh from the canonical task endpoint.
     if (String(event.actor) !== String(userId)) refreshTasks()
@@ -205,6 +212,17 @@ export default function Board({ project, workspaceId, userId, onBack }) {
                       <option key={status} value={status}>{status}</option>
                     ))}
                   </select>
+                  <button className="link-button comment-toggle" type="button"
+                    onClick={() => setOpenCommentsTask(current => current === task.id ? null : task.id)}>
+                    {openCommentsTask === task.id ? 'Hide comments' : 'Comments'}
+                  </button>
+                  {openCommentsTask === task.id && <TaskComments
+                    projectId={project.id}
+                    task={task}
+                    currentUserId={userId}
+                    canManageAll={members.some(member => String(member.user_id) === String(userId) && ['Owner', 'Admin'].includes(member.role))}
+                    refreshRevision={commentRevision}
+                  />}
                 </article>
               ))}
               {column.items.length === 0 && <p className="empty">Drop a task here</p>}

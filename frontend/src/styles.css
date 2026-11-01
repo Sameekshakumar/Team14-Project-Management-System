@@ -78,6 +78,22 @@ h2 { font: 700 15px Manrope, sans-serif; margin: 0 0 12px; letter-spacing: -.3px
 .subtasks li { font-size: 12px; color: #a6b3c9; }
 .subtasks em { color: #8192ad; font-style: normal; font-size: 11px; }
 .move-select { padding: 7px 9px; font-size: 12px; }
+.comment-toggle { display: block; margin-top: 10px; }
+.comment-panel { margin-top: 10px; padding-top: 10px; border-top: 1px solid #2c3b58; }
+.comment-panel h4 { margin: 0 0 8px; font-size: 13px; }
+.comment-panel form { display: grid; gap: 8px; margin-top: 10px; }
+.comment-panel label { font-size: 12px; }
+.comment-panel textarea { width: 100%; min-height: 72px; resize: vertical; box-sizing: border-box; }
+.comment { padding: 9px 0; border-bottom: 1px solid #263653; overflow-wrap: anywhere; }
+.comment header { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: #a6b3c9; }
+.comment time { color: #8192ad; }
+.comment p { margin: 7px 0; white-space: pre-wrap; font-size: 12px; }
+.comment small { color: #8fa5c8; font-size: 10px; }
+.comment-actions { display: flex; gap: 12px; }
+.danger-link { color: #f29aab; }
+.mention-suggestions { list-style: none; padding: 4px; margin: -4px 0 0; border: 1px solid #354562; border-radius: 8px; background: #0c1425; }
+.mention-suggestions button { width: 100%; padding: 7px; text-align: left; border: 0; background: transparent; color: #eaf0fb; cursor: pointer; }
+.mention-suggestions button:hover, .mention-suggestions button:focus { background: #223150; }
 @media (max-width: 900px) {
   .task-form-row { grid-template-columns: 1fr; }
   .columns { grid-template-columns: repeat(4, minmax(200px, 1fr)); }
