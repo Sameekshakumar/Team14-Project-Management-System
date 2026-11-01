@@ -16,3 +16,17 @@ class Sprint(models.Model):
     class Meta:
         ordering = ["start_date", "created_at"]
         constraints = [models.CheckConstraint(condition=models.Q(end_date__gte=models.F("start_date")), name="sprint_valid_date_range")]
+
+
+class TimeEntry(models.Model):
+    """FR-SPR-03: immutable time recorded by the authenticated user."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    task = models.ForeignKey("projects.Task", on_delete=models.CASCADE, related_name="time_entries")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="time_entries")
+    minutes = models.PositiveIntegerField()
+    note = models.CharField(max_length=1000, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [models.CheckConstraint(condition=models.Q(minutes__gte=1), name="time_entry_positive_minutes")]
