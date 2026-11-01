@@ -118,6 +118,12 @@ export const api = {
   createProject: (workspaceId, name) =>
     request(`/api/workspaces/${workspaceId}/projects/`, { method: 'POST', body: { name } }),
 
+  sprints: (projectId) => request(`/api/v1/projects/${projectId}/sprints/`),
+  createSprint: (body) => request('/api/v1/sprints/', { method: 'POST', body }),
+  assignSprintItems: (sprintId, itemIds) => request(`/api/v1/sprints/${sprintId}/items/`, { method: 'POST', body: { item_ids: itemIds } }),
+  removeSprintItem: (sprintId, taskId) => request(`/api/v1/sprints/${sprintId}/items/${taskId}/`, { method: 'DELETE' }),
+  startSprint: (sprintId) => request(`/api/v1/sprints/${sprintId}/start/`, { method: 'POST' }),
+
   backlog: (projectId) => request(`/api/v1/projects/${projectId}/backlog-items/`),
   createBacklog: (projectId, payload) => request(`/api/v1/projects/${projectId}/backlog-items/`, { method: 'POST', body: payload }),
 

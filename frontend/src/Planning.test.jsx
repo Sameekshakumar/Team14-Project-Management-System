@@ -3,12 +3,14 @@ import Planning from './Planning.jsx'
 import { api } from './api.js'
 
 jest.mock('./api.js', () => ({ api: {
-  backlog: jest.fn(), workspaces: jest.fn(), createBacklog: jest.fn(), updateTask: jest.fn()
+  backlog: jest.fn(), workspaces: jest.fn(), createBacklog: jest.fn(), updateTask: jest.fn(), sprints: jest.fn(), createSprint: jest.fn(),
+  assignSprintItems: jest.fn(), removeSprintItem: jest.fn(), startSprint: jest.fn()
 } }))
 const project = { id: 'project-1', name: 'Demo' }
 const item = { id: 'task-1', title: 'Login page', description: '', story_points: 5 }
 beforeEach(() => {
   jest.resetAllMocks()
+  api.sprints.mockResolvedValue([])
   api.backlog.mockResolvedValue([item])
   api.workspaces.mockResolvedValue([{ id: 'workspace-1', current_user_role: 'Owner' }])
 })
