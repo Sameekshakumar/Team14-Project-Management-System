@@ -6,6 +6,7 @@ from .views import (
     TaskDetailViewSet,
     TaskListCreateViewSet,
 )
+from .analytics import ProjectAnalyticsView
 
 project_list = ProjectViewSet.as_view({"get": "list", "post": "create"})
 project_detail = ProjectViewSet.as_view({
@@ -55,4 +56,5 @@ urlpatterns = [
         dependency_detail,
         name="task-dependency-detail",
     ),
+    path("projects/<uuid:project_id>/analytics/", ProjectAnalyticsView.as_view(), name="project-analytics"),
 ]

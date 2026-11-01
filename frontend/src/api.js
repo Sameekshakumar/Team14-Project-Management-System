@@ -135,6 +135,7 @@ export const api = {
   searchProjectMembers: (projectId, query) => request(`/api/projects/${projectId}/members/search/?q=${encodeURIComponent(query)}`),
   projectContext: (projectId) => request(`/api/projects/${projectId}/context/`),
   activity: (projectId, page = 1) => request(`/api/projects/${projectId}/activity/?page=${page}`),
+  analytics: (projectId, dateFrom, dateTo) => request(`/api/projects/${projectId}/analytics/?date_from=${dateFrom}&date_to=${dateTo}`),
   notifications: () => request('/api/notifications/'),
   unreadCount: () => request('/api/notifications/unread-count/'),
   markNotificationRead: (id) => request(`/api/notifications/${id}/read/`, { method: 'POST' }),

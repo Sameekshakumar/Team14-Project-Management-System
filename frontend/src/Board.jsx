@@ -3,6 +3,7 @@ import { api, STATUSES } from './api.js'
 import { useProjectSocket } from './useProjectSocket.js'
 import TaskComments from './TaskComments.jsx'
 import ActivityFeed from './ActivityFeed.jsx'
+import AnalyticsDashboard from './AnalyticsDashboard.jsx'
 
 /**
  * FR-TASK-03: tasks grouped into status columns, movable by drag and drop.
@@ -22,6 +23,7 @@ export default function Board({ project, workspaceId, userId, onBack }) {
   const [commentRevision, setCommentRevision] = useState(0)
   const [activityRevision, setActivityRevision] = useState(0)
   const [showActivity, setShowActivity] = useState(false)
+  const [showAnalytics, setShowAnalytics] = useState(false)
   const [notificationTaskId, setNotificationTaskId] = useState(null)
 
   const refreshTasks = useCallback(() => {
@@ -134,8 +136,13 @@ export default function Board({ project, workspaceId, userId, onBack }) {
           onClick={() => setShowActivity(value => !value)}>
           {showActivity ? 'Hide activity' : 'Project activity'}
         </button>
+        <button className="link-button" type="button" aria-expanded={showAnalytics}
+          onClick={() => setShowAnalytics(value => !value)}>
+          {showAnalytics ? 'Hide analytics' : 'Project analytics'}
+        </button>
       </div>
       {showActivity && <ActivityFeed projectId={project.id} revision={activityRevision} />}
+      {showAnalytics && <AnalyticsDashboard projectId={project.id} />}
 
       {error && <div className="notice error" role="alert">{error}</div>}
 

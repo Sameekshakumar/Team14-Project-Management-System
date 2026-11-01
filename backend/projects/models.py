@@ -1,5 +1,6 @@
 import uuid
 
+from django.apps import apps
 from django.conf import settings
 from django.db import models
 
@@ -54,6 +55,9 @@ class Task(models.Model):
         (STATUS_IN_PROGRESS, STATUS_IN_PROGRESS),
         (STATUS_DONE, STATUS_DONE),
     ]
+    PRIORITY_CHOICES = [
+        ("Low", "Low"), ("Medium", "Medium"), ("High", "High"), ("Critical", "Critical"),
+    ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     project = models.ForeignKey(
@@ -75,8 +79,17 @@ class Task(models.Model):
         choices=STATUS_CHOICES,
         default=STATUS_TODO,
     )
-    sprint = models.ForeignKey("sprints.Sprint", on_delete=models.SET_NULL, null=True, blank=True, related_name="items")
-    story_points = models.PositiveIntegerField(null=True, blank=True)
+        sprint = models.ForeignKey(
+            "sprints.Sprint",
+            on_delete=models.SET_NULL,
+            null=True,
+            blank=True,
+            related_name="items",
+        )
+        story_points = models.PositiveIntegerField(null=True, blank=True)
+        priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default="Medium")
+        due_date = models.DateField(null=True, blank=True, db_index=True)
+        completed_at = models.DateTimeField(null=True, blank=True, db_index=True)
     assignee = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

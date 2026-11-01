@@ -1,3 +1,4 @@
+from django.apps import apps
 from rest_framework import serializers
 
 from accounts.permissions import get_user_workspace_role
@@ -49,6 +50,7 @@ class SubtaskSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    completed_at = serializers.DateTimeField(read_only=True)
     story_points = serializers.IntegerField(min_value=0, max_value=2147483647, allow_null=True, required=False)
     subtasks = SubtaskSerializer(many=True, read_only=True)
     assignee_email = serializers.EmailField(source="assignee.email", read_only=True, default=None)
@@ -65,7 +67,10 @@ class TaskSerializer(serializers.ModelSerializer):
             "description",
             "status",
             "story_points",
-            "sprint",
+            *(["sprint"] if apps.is_installed("sprints") else []),
+            "priority",
+            "due_date",
+            "completed_at",
             "assignee",
             "assignee_email",
             "created_by",
@@ -75,7 +80,8 @@ class TaskSerializer(serializers.ModelSerializer):
             "depends_on",
             "is_blocked",
         ]
-        read_only_fields = ["id", "project", "sprint", "created_by", "created_at", "updated_at"]
+        read_only_fields = ["id", "project", *(["sprint"] if apps.is_installed("sprints") else []),
+            "created_by", "created_at", "updated_at", "completed_at"]
 
     def get_project(self):
         return self.context.get("project") or getattr(self.instance, "project", None)

@@ -103,11 +103,26 @@ h2 { font: 700 15px Manrope, sans-serif; margin: 0 0 12px; letter-spacing: -.3px
 .notification-item.unread { border-left: 3px solid #a6f0c6; }
 .notification-item small { color: #8fa5c8; }
 .activity-toggle-row { display: flex; justify-content: flex-end; }
+.activity-toggle-row { gap: 16px; flex-wrap: wrap; }
 .activity-feed { padding: 16px; border: 1px solid #2c3b58; border-radius: 12px; background: rgba(17,25,45,.94); }
 .activity-feed ol { list-style: none; margin: 0; padding: 0; }
 .activity-feed li { display: flex; flex-wrap: wrap; gap: 5px; padding: 9px 0; border-bottom: 1px solid #243451; font-size: 12px; }
 .activity-feed li time { margin-left: auto; color: #8192ad; }
 .activity-feed li span { color: #a6f0c6; }
+.analytics { padding: 16px; border: 1px solid #2c3b58; border-radius: 12px; background: rgba(17,25,45,.94); }
+.analytics-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.analytics-heading h2 { margin: 0; }
+.analytics-dates { display: flex; gap: 12px; flex-wrap: wrap; }
+.analytics-dates label { display: grid; gap: 4px; color: #aebbd0; font-size: 12px; }
+.analytics-dates input { color-scheme: dark; padding: 7px 9px; border: 1px solid #364663; border-radius: 7px; background: #11192d; color: #eef3ff; }
+.analytics-cards { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 12px; margin: 16px 0; }
+.analytics-metric, .analytics-panel { min-width: 0; padding: 14px; border: 1px solid #2c3b58; border-radius: 10px; background: rgba(12,19,35,.72); }
+.analytics-metric { display: grid; gap: 8px; color: #aebbd0; }
+.analytics-metric strong { color: #f3f6ff; font-size: 25px; }
+.analytics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.analytics-panel h3 { margin: 0 0 10px; font-size: 15px; }
+.analytics-panel li { padding: 6px 0; color: #c8d2e3; }
+@media (max-width: 700px) { .analytics-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .analytics-grid { grid-template-columns: 1fr; } }
 @media (max-width: 900px) {
   .task-form-row { grid-template-columns: 1fr; }
   .columns { grid-template-columns: repeat(4, minmax(200px, 1fr)); }
