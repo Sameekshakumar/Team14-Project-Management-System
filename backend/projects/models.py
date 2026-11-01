@@ -1,5 +1,6 @@
 import uuid
 
+from django.apps import apps
 from django.conf import settings
 from django.db import models
 
@@ -78,6 +79,12 @@ class Task(models.Model):
         choices=STATUS_CHOICES,
         default=STATUS_TODO,
     )
+    story_points = models.PositiveIntegerField(null=True, blank=True)
+    if apps.is_installed("sprints"):
+        sprint = models.ForeignKey(
+            "sprints.Sprint", on_delete=models.SET_NULL, null=True, blank=True,
+            related_name="items",
+        )
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default="Medium")
     due_date = models.DateField(null=True, blank=True, db_index=True)
     completed_at = models.DateTimeField(null=True, blank=True, db_index=True)
