@@ -123,6 +123,12 @@ export const api = {
   updateComment: (taskId, commentId, body) => request(`/api/tasks/${taskId}/comments/${commentId}/`, { method: 'PATCH', body: { body } }),
   deleteComment: (taskId, commentId) => request(`/api/tasks/${taskId}/comments/${commentId}/`, { method: 'DELETE' }),
   searchProjectMembers: (projectId, query) => request(`/api/projects/${projectId}/members/search/?q=${encodeURIComponent(query)}`),
+  projectContext: (projectId) => request(`/api/projects/${projectId}/context/`),
+  activity: (projectId, page = 1) => request(`/api/projects/${projectId}/activity/?page=${page}`),
+  notifications: () => request('/api/notifications/'),
+  unreadCount: () => request('/api/notifications/unread-count/'),
+  markNotificationRead: (id) => request(`/api/notifications/${id}/read/`, { method: 'POST' }),
+  markAllNotificationsRead: () => request('/api/notifications/read-all/', { method: 'POST' }),
   createTask: (projectId, payload) =>
     request(`/api/projects/${projectId}/tasks/`, { method: 'POST', body: payload }),
   updateTask: (taskId, payload) =>

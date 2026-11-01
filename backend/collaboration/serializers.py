@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework import serializers
 
-from .models import Mention, TaskComment
+from .models import ActivityEvent, Mention, Notification, TaskComment
 
 User = get_user_model()
 MENTION_PATTERN = re.compile(r"(?<![\w.+-])@([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})", re.IGNORECASE)
@@ -62,3 +62,22 @@ class TaskCommentSerializer(serializers.ModelSerializer):
             Mention.objects.filter(comment=comment).delete()
             Mention.objects.bulk_create([Mention(comment=comment, mentioned_user=user) for user in users])
         return comment
+
+
+class ActivityEventSerializer(serializers.ModelSerializer):
+    actor_email = serializers.EmailField(source="actor.email", read_only=True, default=None)
+    task_title = serializers.CharField(source="task.title", read_only=True, default=None)
+
+    class Meta:
+        model = ActivityEvent
+        fields = ["id", "verb", "target_type", "target_id", "metadata", "actor", "actor_email", "task", "task_title", "created_at"]
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    project_name = serializers.CharField(source="project.name", read_only=True)
+    task_title = serializers.CharField(source="task.title", read_only=True, default=None)
+
+    class Meta:
+        model = Notification
+        fields = ["id", "project", "project_name", "task", "task_title", "activity", "kind", "message", "is_read", "created_at", "read_at"]
+        read_only_fields = fields

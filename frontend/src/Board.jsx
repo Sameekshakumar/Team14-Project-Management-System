@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api, STATUSES } from './api.js'
 import { useProjectSocket } from './useProjectSocket.js'
 import TaskComments from './TaskComments.jsx'
+import ActivityFeed from './ActivityFeed.jsx'
 
 /**
  * FR-TASK-03: tasks grouped into status columns, movable by drag and drop.
@@ -19,12 +20,19 @@ export default function Board({ project, workspaceId, userId, onBack }) {
   const [saving, setSaving] = useState(false)
   const [openCommentsTask, setOpenCommentsTask] = useState(null)
   const [commentRevision, setCommentRevision] = useState(0)
+  const [activityRevision, setActivityRevision] = useState(0)
+  const [showActivity, setShowActivity] = useState(false)
+  const [notificationTaskId, setNotificationTaskId] = useState(null)
 
   const refreshTasks = useCallback(() => {
     api.tasks(project.id).then(setTasks).catch(err => setError(err.message))
   }, [project.id])
 
   const handleSocketEvent = useCallback(event => {
+    if (event.type === 'activity_created') {
+      setActivityRevision(value => value + 1)
+      return
+    }
     if (event.type?.startsWith('comment_')) {
       if (String(event.actor) !== String(userId)) setCommentRevision(value => value + 1)
       return
@@ -35,6 +43,19 @@ export default function Board({ project, workspaceId, userId, onBack }) {
   }, [refreshTasks, userId])
 
   useProjectSocket(project.id, handleSocketEvent)
+
+  useEffect(() => {
+    function openTask(event) { setNotificationTaskId(event.detail.taskId) }
+    window.addEventListener('notification:open-task', openTask)
+    return () => window.removeEventListener('notification:open-task', openTask)
+  }, [])
+
+  useEffect(() => {
+    if (!notificationTaskId || !tasks.some(task => String(task.id) === String(notificationTaskId))) return
+    setOpenCommentsTask(notificationTaskId)
+    document.getElementById(`task-card-${notificationTaskId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    setNotificationTaskId(null)
+  }, [notificationTaskId, tasks])
 
   useEffect(() => {
     let active = true
@@ -108,6 +129,14 @@ export default function Board({ project, workspaceId, userId, onBack }) {
         </div>
       </header>
 
+      <div className="activity-toggle-row">
+        <button className="link-button" type="button" aria-expanded={showActivity}
+          onClick={() => setShowActivity(value => !value)}>
+          {showActivity ? 'Hide activity' : 'Project activity'}
+        </button>
+      </div>
+      {showActivity && <ActivityFeed projectId={project.id} revision={activityRevision} />}
+
       {error && <div className="notice error" role="alert">{error}</div>}
 
       <form className="task-form" onSubmit={addTask}>
@@ -177,6 +206,7 @@ export default function Board({ project, workspaceId, userId, onBack }) {
               <h2>{column.status} <span className="count">{column.items.length}</span></h2>
               {column.items.map(task => (
                 <article
+                  id={`task-card-${task.id}`}
                   key={task.id}
                   className="card"
                   draggable
