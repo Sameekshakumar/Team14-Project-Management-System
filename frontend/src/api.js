@@ -127,6 +127,9 @@ export const api = {
   backlog: (projectId) => request(`/api/v1/projects/${projectId}/backlog-items/`),
   createBacklog: (projectId, payload) => request(`/api/v1/projects/${projectId}/backlog-items/`, { method: 'POST', body: payload }),
 
+  taskTimeEntries: (taskId) => request(`/api/v1/tasks/${taskId}/time-entries/`),
+  logTaskTime: (taskId, payload) => request(`/api/v1/tasks/${taskId}/time-entries/`, { method: 'POST', body: payload }),
+
   tasks: (projectId) => request(`/api/projects/${projectId}/tasks/`),
   comments: (taskId) => request(`/api/tasks/${taskId}/comments/`),
   createComment: (taskId, body) => request(`/api/tasks/${taskId}/comments/`, { method: 'POST', body: { body } }),

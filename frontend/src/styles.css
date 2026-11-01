@@ -344,3 +344,25 @@ h2 { font: 700 15px Manrope, sans-serif; margin: 0 0 12px; letter-spacing: -.3px
     padding: 16px;
   }
 }
+
+/* Issue #15: scoped time logging form and history */
+.time-pane { padding: 28px; }
+.time-pane > h2 { margin-bottom: 16px; }
+.time-pane .time-help { color: #a6b3c9; line-height: 1.6; }
+.time-pane label { display: flex; flex-direction: column; gap: 8px; margin: 0; font-size: 14px; line-height: 1.5; }
+.time-pane .time-task-picker, .time-pane .time-form { max-width: 760px; margin: 24px 0; }
+.time-pane .time-form { gap: 18px; }
+.time-pane input, .time-pane select, .time-pane textarea { width: 100%; min-width: 0; font: inherit; font-weight: 400; line-height: 1.5; padding: 12px 14px; color: #f5f8ff; background: #0c1425; border: 1px solid #354562; border-radius: 9px; }
+.time-pane textarea { min-height: 100px; resize: vertical; }
+.time-pane input:focus, .time-pane select:focus, .time-pane textarea:focus { outline: none; border-color: #83e2b0; box-shadow: 0 0 0 3px rgba(131,226,176,.12); }
+.time-pane .submit.inline { align-self: flex-start; padding: 12px 20px; white-space: normal; }
+.time-pane .time-total { margin: 24px 0; line-height: 1.6; }
+.time-pane h3 { margin-top: 28px; }
+.time-pane .time-history { list-style: none; padding: 0; display: grid; gap: 12px; }
+.time-pane .time-history li { padding: 18px; border: 1px solid #2c3b58; border-radius: 12px; background: #0c1425; overflow-wrap: anywhere; }
+.time-pane .time-history p { margin: 8px 0 0; color: #a6b3c9; line-height: 1.6; }
+.time-pane .time-note { white-space: pre-wrap; }
+@media (max-width: 600px) {
+  .time-pane { padding: 18px; }
+  .time-pane .submit.inline { align-self: stretch; width: 100%; }
+}
