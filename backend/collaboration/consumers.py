@@ -59,3 +59,26 @@ class ProjectConsumer(AsyncJsonWebsocketConsumer):
         return project.workspace.owner_id == user_id or WorkspaceMembership.objects.filter(
             workspace=project.workspace, user_id=user_id
         ).exists()
+
+
+class NotificationConsumer(AsyncJsonWebsocketConsumer):
+    async def connect(self):
+        user = self.scope.get("user")
+        if not user or not user.is_authenticated:
+            await self.close(code=4401)
+            return
+        self.group_name = f"user_{user.pk}"
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        await self.accept(subprotocol="t14")
+
+    async def disconnect(self, close_code):
+        group_name = getattr(self, "group_name", None)
+        if group_name:
+            await self.channel_layer.group_discard(group_name, self.channel_name)
+
+    async def user_event(self, event):
+        await self.send_json({
+            "type": event["event_type"],
+            "payload": event["payload"],
+            "timestamp": timezone.now().isoformat(),
+        })

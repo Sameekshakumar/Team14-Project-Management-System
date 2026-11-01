@@ -2,7 +2,10 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from django.utils.dateparse import parse_date
 from rest_framework import permissions, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -10,8 +13,8 @@ from accounts.permissions import get_user_workspace_role
 from projects.models import Project, Task
 from projects.permissions import require_member, require_write
 
-from .models import TaskComment
-from .serializers import TaskCommentSerializer
+from .models import ActivityEvent, Notification, TaskComment
+from .serializers import ActivityEventSerializer, NotificationSerializer, TaskCommentSerializer
 from .services import publish_project_event, record_comment_change
 
 
@@ -95,3 +98,98 @@ class ProjectMemberSearchView(APIView):
             members = members.filter(email__icontains=query)
         return Response([{"id": member.pk, "email": member.email}
                          for member in members.order_by("email").distinct()[:20]])
+
+
+class ActivityPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
+class ProjectActivityView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = ActivityPagination
+
+    def get(self, request, project_id):
+        project = get_object_or_404(Project.objects.select_related("workspace"), pk=project_id)
+        require_member(request.user, project.workspace)
+        events = ActivityEvent.objects.filter(project=project).select_related("actor", "task")
+        user_id = request.query_params.get("user")
+        event_type = request.query_params.get("type")
+        if user_id:
+            if not user_id.isdigit():
+                return Response({"user": "Use a numeric user ID."}, status=400)
+            events = events.filter(actor_id=user_id)
+        if event_type:
+            events = events.filter(verb=event_type[:40])
+        for param, lookup in (("date_from", "created_at__date__gte"), ("date_to", "created_at__date__lte")):
+            value = request.query_params.get(param)
+            if value:
+                parsed = parse_date(value)
+                if not parsed:
+                    return Response({param: "Use YYYY-MM-DD."}, status=400)
+                events = events.filter(**{lookup: parsed})
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(events, request, view=self)
+        return paginator.get_paginated_response(ActivityEventSerializer(page, many=True).data)
+
+
+class ProjectContextView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, project_id):
+        project = get_object_or_404(Project.objects.select_related("workspace"), pk=project_id)
+        require_member(request.user, project.workspace)
+        return Response({
+            "id": str(project.pk), "name": project.name, "description": project.description,
+            "workspace_id": str(project.workspace_id),
+        })
+
+
+class NotificationListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        notifications = Notification.objects.filter(recipient=request.user).select_related(
+            "activity", "project", "task"
+        )
+        unread = request.query_params.get("unread")
+        if unread not in {None, "true", "false"}:
+            return Response({"unread": "Use true or false."}, status=400)
+        if unread == "true":
+            notifications = notifications.filter(is_read=False)
+        elif unread == "false":
+            notifications = notifications.filter(is_read=True)
+        paginator = ActivityPagination()
+        page = paginator.paginate_queryset(notifications, request, view=self)
+        return paginator.get_paginated_response(NotificationSerializer(page, many=True).data)
+
+
+class NotificationReadView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, notification_id):
+        notification = get_object_or_404(Notification, pk=notification_id, recipient=request.user)
+        if not notification.is_read:
+            notification.is_read = True
+            notification.read_at = timezone.now()
+            notification.save(update_fields=["is_read", "read_at"])
+        return Response(NotificationSerializer(notification).data)
+
+
+class NotificationReadAllView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        Notification.objects.filter(recipient=request.user, is_read=False).update(
+            is_read=True, read_at=timezone.now()
+        )
+        return Response({"marked_read": True})
+
+
+class NotificationUnreadCountView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        count = Notification.objects.filter(recipient=request.user, is_read=False).count()
+        return Response({"count": count})

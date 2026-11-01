@@ -94,6 +94,20 @@ h2 { font: 700 15px Manrope, sans-serif; margin: 0 0 12px; letter-spacing: -.3px
 .mention-suggestions { list-style: none; padding: 4px; margin: -4px 0 0; border: 1px solid #354562; border-radius: 8px; background: #0c1425; }
 .mention-suggestions button { width: 100%; padding: 7px; text-align: left; border: 0; background: transparent; color: #eaf0fb; cursor: pointer; }
 .mention-suggestions button:hover, .mention-suggestions button:focus { background: #223150; }
+.notification-bell { position: relative; }
+.notification-count { display: inline-grid; place-items: center; min-width: 18px; height: 18px; margin-left: 4px; padding: 0 4px; border-radius: 999px; background: #f08da4; color: #151b2a; font-size: 10px; font-weight: 800; }
+.notification-menu { position: absolute; z-index: 5; top: calc(100% + 10px); right: 0; width: min(360px, calc(100vw - 32px)); max-height: 420px; overflow-y: auto; padding: 12px; border: 1px solid #354562; border-radius: 12px; background: #11192d; box-shadow: 0 16px 40px rgba(0,0,0,.35); }
+.notification-menu > header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid #2c3b58; }
+.notification-item { display: grid; width: 100%; gap: 4px; padding: 10px 8px; text-align: left; border: 0; border-bottom: 1px solid #243451; background: transparent; color: #eaf0fb; cursor: pointer; }
+.notification-item:hover { background: #17233d; }
+.notification-item.unread { border-left: 3px solid #a6f0c6; }
+.notification-item small { color: #8fa5c8; }
+.activity-toggle-row { display: flex; justify-content: flex-end; }
+.activity-feed { padding: 16px; border: 1px solid #2c3b58; border-radius: 12px; background: rgba(17,25,45,.94); }
+.activity-feed ol { list-style: none; margin: 0; padding: 0; }
+.activity-feed li { display: flex; flex-wrap: wrap; gap: 5px; padding: 9px 0; border-bottom: 1px solid #243451; font-size: 12px; }
+.activity-feed li time { margin-left: auto; color: #8192ad; }
+.activity-feed li span { color: #a6f0c6; }
 @media (max-width: 900px) {
   .task-form-row { grid-template-columns: 1fr; }
   .columns { grid-template-columns: repeat(4, minmax(200px, 1fr)); }

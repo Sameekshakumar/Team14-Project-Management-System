@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Board from './Board.jsx'
 import Planning from './Planning.jsx'
 import { api, tokens } from './api.js'
+import NotificationBell from './NotificationBell.jsx'
 
 /**
  * Three primary screens, which keeps task creation inside the NFR-003 budget
@@ -22,6 +23,21 @@ export default function App() {
       .then(setUser)
       .catch(() => tokens.clear())
       .finally(() => setChecking(false))
+  }, [])
+
+  useEffect(() => {
+    async function navigateToNotification(event) {
+      try {
+        const projectContext = await api.projectContext(event.detail.projectId)
+        setWorkspaceId(projectContext.workspace_id)
+        setProject(projectContext)
+        window.setTimeout(() => window.dispatchEvent(new CustomEvent('notification:open-task', {
+          detail: { taskId: event.detail.taskId },
+        })), 250)
+      } catch { /* The API will reject a project the user no longer belongs to. */ }
+    }
+    window.addEventListener('notification:navigate', navigateToNotification)
+    return () => window.removeEventListener('notification:navigate', navigateToNotification)
   }, [])
 
   function signOut() {
@@ -72,6 +88,7 @@ function TopBar({ email, onSignOut }) {
     <div className="topbar">
       <div className="brand-mark small">T14</div>
       <span className="topbar-email">{email}</span>
+      <NotificationBell />
       <button className="link-button" onClick={onSignOut}>Sign out</button>
     </div>
   )
