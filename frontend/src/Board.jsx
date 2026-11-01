@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api, STATUSES } from './api.js'
+import { useProjectSocket } from './useProjectSocket.js'
 
 /**
  * FR-TASK-03: tasks grouped into status columns, movable by drag and drop.
@@ -7,7 +8,7 @@ import { api, STATUSES } from './api.js'
  * pairs every drag target with a status <select> so the board stays usable
  * from the keyboard.
  */
-export default function Board({ project, workspaceId, onBack }) {
+export default function Board({ project, workspaceId, userId, onBack }) {
   const [tasks, setTasks] = useState([])
   const [members, setMembers] = useState([])
   const [error, setError] = useState('')
@@ -15,6 +16,18 @@ export default function Board({ project, workspaceId, onBack }) {
   const [dragOver, setDragOver] = useState(null)
   const [draft, setDraft] = useState({ title: '', description: '', assignee: '', parent: '' })
   const [saving, setSaving] = useState(false)
+
+  const refreshTasks = useCallback(() => {
+    api.tasks(project.id).then(setTasks).catch(err => setError(err.message))
+  }, [project.id])
+
+  const handleSocketEvent = useCallback(event => {
+    // REST responses already update the initiating user's board. Ignore its
+    // echo; other members refresh from the canonical task endpoint.
+    if (String(event.actor) !== String(userId)) refreshTasks()
+  }, [refreshTasks, userId])
+
+  useProjectSocket(project.id, handleSocketEvent)
 
   useEffect(() => {
     let active = true

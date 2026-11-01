@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 from rest_framework import permissions, viewsets
 from rest_framework.exceptions import PermissionDenied
 
@@ -80,7 +81,13 @@ class TaskListCreateViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         project = self.get_project()
         require_write(self.request.user, project.workspace)
-        serializer.save(project=project, created_by=self.request.user)
+        with transaction.atomic():
+            task = serializer.save(project=project, created_by=self.request.user)
+            from collaboration.services import record_task_change
+            record_task_change(
+                task=task, actor=self.request.user, created=True,
+                task_data=TaskSerializer(task, context=self.get_serializer_context()).data,
+            )
 
 
 class TaskDetailViewSet(viewsets.ModelViewSet):
@@ -109,11 +116,25 @@ class TaskDetailViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         require_write(self.request.user, serializer.instance.project.workspace)
-        serializer.save()
+        instance = serializer.instance
+        previous = {
+            "title": instance.title, "status": instance.status,
+            "assignee_id": instance.assignee_id,
+        }
+        with transaction.atomic():
+            task = serializer.save()
+            from collaboration.services import record_task_change
+            record_task_change(
+                task=task, actor=self.request.user, created=False, previous=previous,
+                task_data=TaskSerializer(task, context=self.get_serializer_context()).data,
+            )
 
     def perform_destroy(self, instance):
         require_write(self.request.user, instance.project.workspace)
-        instance.delete()
+        with transaction.atomic():
+            from collaboration.services import record_task_deletion
+            record_task_deletion(task=instance, actor=self.request.user)
+            instance.delete()
 
 
 class TaskDependencyViewSet(viewsets.ModelViewSet):

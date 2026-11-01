@@ -39,7 +39,7 @@ export default function App() {
     return (
       <main className="page wide">
         <TopBar email={user.email} onSignOut={signOut} />
-        <Board project={project} workspaceId={workspaceId} onBack={() => setProject(null)} />
+        <Board project={project} workspaceId={workspaceId} userId={user.id} onBack={() => setProject(null)} />
       </main>
     )
   }

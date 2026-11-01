@@ -21,6 +21,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "accounts",
     "projects",
+    "channels",
+    "collaboration",
 ]
 
 MIDDLEWARE = [
@@ -47,6 +49,17 @@ TEMPLATES = [{
 }]
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
+
+CHANNEL_REDIS_URL = os.getenv("CHANNEL_REDIS_URL", "redis://127.0.0.1:6379/0")
+if os.getenv("CHANNEL_LAYER_BACKEND", "memory" if DEBUG else "redis") == "memory":
+    CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {"hosts": [CHANNEL_REDIS_URL]},
+        }
+    }
 
 # PostgreSQL is the project database, as specified in the Team 14 SRS.
 DATABASES = {
