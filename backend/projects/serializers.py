@@ -63,6 +63,9 @@ class TaskSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "status",
+            "priority",
+            "due_date",
+            "completed_at",
             "assignee",
             "assignee_email",
             "created_by",
@@ -72,7 +75,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "depends_on",
             "is_blocked",
         ]
-        read_only_fields = ["id", "project", "created_by", "created_at", "updated_at"]
+        read_only_fields = ["id", "project", "created_by", "created_at", "updated_at", "completed_at"]
 
     def get_project(self):
         return self.context.get("project") or getattr(self.instance, "project", None)

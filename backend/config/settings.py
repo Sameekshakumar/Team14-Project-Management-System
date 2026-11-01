@@ -11,6 +11,7 @@ DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() == "true"
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",") if h.strip()]
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -21,6 +22,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "accounts",
     "projects",
+    "channels",
+    "collaboration",
 ]
 
 MIDDLEWARE = [
@@ -47,6 +50,22 @@ TEMPLATES = [{
 }]
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
+
+_channel_backend = os.getenv("CHANNEL_LAYER_BACKEND", "memory" if DEBUG else "redis")
+CHANNEL_REDIS_URL = os.getenv("CHANNEL_REDIS_URL", "redis://127.0.0.1:6379/0")
+if _channel_backend == "memory":
+    CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [CHANNEL_REDIS_URL],
+                "capacity": int(os.getenv("CHANNEL_CAPACITY", "1000")),
+                "expiry": int(os.getenv("CHANNEL_MESSAGE_EXPIRY", "60")),
+            },
+        },
+    }
 
 # PostgreSQL is the project database, as specified in the Team 14 SRS.
 DATABASES = {

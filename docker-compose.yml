@@ -16,5 +16,57 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+  redis:
+    image: redis:7-alpine
+    container_name: team14-collaboration-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  api:
+    build:
+      context: ./backend
+    container_name: team14-api
+    restart: unless-stopped
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-local-only-insecure-key-change-me}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-True}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,api}
+      POSTGRES_DB: ${POSTGRES_DB:-team14_project}
+      POSTGRES_USER: ${POSTGRES_USER:-team14_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_only_change_me}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      CHANNEL_REDIS_URL: redis://redis:6379/0
+      CHANNEL_LAYER_BACKEND: ${CHANNEL_LAYER_BACKEND:-redis}
+      CHANNEL_CAPACITY: ${CHANNEL_CAPACITY:-1000}
+      CHANNEL_MESSAGE_EXPIRY: ${CHANNEL_MESSAGE_EXPIRY:-60}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('127.0.0.1', 8000), timeout=2).close()"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+  frontend:
+    build:
+      context: ./frontend
+    container_name: team14-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://127.0.0.1:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
 volumes:
   team14_postgres_data:

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Board from './Board.jsx'
 import { api, tokens } from './api.js'
+import NotificationBell from './NotificationBell.jsx'
 
 /**
  * Three primary screens, which keeps task creation inside the NFR-003 budget
@@ -12,6 +13,7 @@ export default function App() {
   const [checking, setChecking] = useState(Boolean(tokens.access))
   const [project, setProject] = useState(null)
   const [workspaceId, setWorkspaceId] = useState(null)
+  const [notificationTargetId, setNotificationTargetId] = useState(null)
 
   // Resume an existing session on reload rather than forcing a fresh login.
   useEffect(() => {
@@ -27,6 +29,19 @@ export default function App() {
     setUser(null)
     setProject(null)
     setWorkspaceId(null)
+    setNotificationTargetId(null)
+  }
+
+  async function openNotification(item) {
+    if (!item.project) return
+    try {
+      const context = await api.projectContext(item.project)
+      setWorkspaceId(context.workspace_id)
+      setProject(context)
+      setNotificationTargetId(item.task)
+    } catch (error) {
+      window.alert(error.message || 'Could not open this notification.')
+    }
   }
 
   if (checking) {
@@ -38,15 +53,16 @@ export default function App() {
   if (project) {
     return (
       <main className="page wide">
-        <TopBar email={user.email} onSignOut={signOut} />
-        <Board project={project} workspaceId={workspaceId} onBack={() => setProject(null)} />
+        <TopBar email={user.email} onSignOut={signOut} onSelectNotification={openNotification} />
+        <Board project={project} workspaceId={workspaceId} onBack={() => setProject(null)}
+          currentUser={user} notificationTargetId={notificationTargetId} />
       </main>
     )
   }
 
   return (
     <main className="page wide">
-      <TopBar email={user.email} onSignOut={signOut} />
+      <TopBar email={user.email} onSignOut={signOut} onSelectNotification={openNotification} />
       <Dashboard
         onOpenProject={(openedProject, openedWorkspaceId) => {
           setWorkspaceId(openedWorkspaceId)
@@ -57,11 +73,12 @@ export default function App() {
   )
 }
 
-function TopBar({ email, onSignOut }) {
+function TopBar({ email, onSignOut, onSelectNotification }) {
   return (
     <div className="topbar">
       <div className="brand-mark small">T14</div>
       <span className="topbar-email">{email}</span>
+      <NotificationBell onSelect={onSelectNotification} />
       <button className="link-button" onClick={onSignOut}>Sign out</button>
     </div>
   )
