@@ -40,6 +40,10 @@ class ProjectConsumer(AsyncJsonWebsocketConsumer):
             except Exception:
                 logger.warning("Could not remove project WebSocket group membership", exc_info=True)
 
+    async def receive_json(self, content, **kwargs):
+        if isinstance(content, dict) and content.get("type") == "ping":
+            await self.send_json({"type": "pong", "timestamp": timezone.now().isoformat()})
+
     async def project_event(self, event):
         payload = event["payload"]
         await self.send_json({

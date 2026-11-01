@@ -71,3 +71,24 @@ class ProjectSocketTests(TransactionTestCase):
             self.assertTrue(message["timestamp"])
         finally:
             await communicator.disconnect()
+
+    async def test_ping_pong_and_reconnect_after_abnormal_disconnect(self):
+        first = self.communicator(self.member)
+        connected, _ = await first.connect()
+        self.assertTrue(connected)
+        await first.send_json_to({"type": "ping"})
+        pong = await first.receive_json_from(timeout=1)
+        self.assertEqual(pong["type"], "pong")
+        self.assertTrue(pong["timestamp"])
+        await first.disconnect(code=1011)
+
+        reconnected = self.communicator(self.member)
+        connected, _ = await reconnected.connect()
+        self.assertTrue(connected)
+        try:
+            await self.update_task()
+            event = await reconnected.receive_json_from(timeout=1)
+            self.assertEqual(event["type"], "task_updated")
+            self.assertEqual(event["payload"]["task"]["status"], Task.STATUS_IN_PROGRESS)
+        finally:
+            await reconnected.disconnect()
