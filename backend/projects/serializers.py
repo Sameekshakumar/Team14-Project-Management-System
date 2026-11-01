@@ -49,6 +49,7 @@ class SubtaskSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    story_points = serializers.IntegerField(min_value=0, max_value=2147483647, allow_null=True, required=False)
     subtasks = SubtaskSerializer(many=True, read_only=True)
     assignee_email = serializers.EmailField(source="assignee.email", read_only=True, default=None)
     depends_on = serializers.SerializerMethodField()
@@ -63,6 +64,8 @@ class TaskSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "status",
+            "story_points",
+            "sprint",
             "assignee",
             "assignee_email",
             "created_by",
@@ -72,7 +75,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "depends_on",
             "is_blocked",
         ]
-        read_only_fields = ["id", "project", "created_by", "created_at", "updated_at"]
+        read_only_fields = ["id", "project", "sprint", "created_by", "created_at", "updated_at"]
 
     def get_project(self):
         return self.context.get("project") or getattr(self.instance, "project", None)
