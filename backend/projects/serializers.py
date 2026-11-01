@@ -49,6 +49,7 @@ class SubtaskSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    story_points = serializers.IntegerField(min_value=0, max_value=2147483647, allow_null=True, required=False)
     subtasks = SubtaskSerializer(many=True, read_only=True)
     assignee_email = serializers.EmailField(source="assignee.email", read_only=True, default=None)
     depends_on = serializers.SerializerMethodField()
@@ -63,6 +64,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "status",
+            "story_points",
             "assignee",
             "assignee_email",
             "created_by",
