@@ -75,6 +75,7 @@ class Task(models.Model):
         choices=STATUS_CHOICES,
         default=STATUS_TODO,
     )
+    story_points = models.PositiveIntegerField(null=True, blank=True)
     assignee = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

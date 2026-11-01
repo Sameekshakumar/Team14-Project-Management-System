@@ -27,6 +27,7 @@ export const tokens = {
 function readError(data, fallback) {
   if (!data) return fallback
   if (typeof data === 'string') return data
+  if (data.error) return `${data.error.message} ${data.error.details && !data.error.details.detail ? JSON.stringify(data.error.details) : ""}`.trim()
   if (data.detail) return data.detail
   const parts = Object.entries(data).map(([field, value]) => {
     const text = Array.isArray(value) ? value.join(' ') : String(value)
@@ -116,6 +117,9 @@ export const api = {
   projects: (workspaceId) => request(`/api/workspaces/${workspaceId}/projects/`),
   createProject: (workspaceId, name) =>
     request(`/api/workspaces/${workspaceId}/projects/`, { method: 'POST', body: { name } }),
+
+  backlog: (projectId) => request(`/api/v1/projects/${projectId}/backlog-items/`),
+  createBacklog: (projectId, payload) => request(`/api/v1/projects/${projectId}/backlog-items/`, { method: 'POST', body: payload }),
 
   tasks: (projectId) => request(`/api/projects/${projectId}/tasks/`),
   createTask: (projectId, payload) =>
