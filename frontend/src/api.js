@@ -118,6 +118,10 @@ export const api = {
   createProject: (workspaceId, name) =>
     request(`/api/workspaces/${workspaceId}/projects/`, { method: 'POST', body: { name } }),
 
+  sprintBurndown: (sprintId) => request(`/api/v1/sprints/${sprintId}/burndown/`),
+  projectVelocity: (projectId) => request(`/api/v1/projects/${projectId}/velocity/`),
+  completeSprint: (sprintId) => request(`/api/v1/sprints/${sprintId}/complete/`, { method: 'POST' }),
+
   sprints: (projectId) => request(`/api/v1/projects/${projectId}/sprints/`),
   createSprint: (body) => request('/api/v1/sprints/', { method: 'POST', body }),
   assignSprintItems: (sprintId, itemIds) => request(`/api/v1/sprints/${sprintId}/items/`, { method: 'POST', body: { item_ids: itemIds } }),

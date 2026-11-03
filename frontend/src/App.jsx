@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Board from './Board.jsx'
 import Planning from './Planning.jsx'
 import TimeLogs from './TimeLogs.jsx'
+import SprintCharts from './SprintCharts.jsx'
 import { api, tokens } from './api.js'
 import NotificationBell from './NotificationBell.jsx'
 
@@ -62,13 +63,16 @@ export default function App() {
           <button className={projectTab === 'board' ? 'tab active' : 'tab'} onClick={() => setProjectTab('board')}>Board</button>
           <button className={projectTab === 'planning' ? 'tab active' : 'tab'} onClick={() => setProjectTab('planning')}>Backlog & sprints</button>
           <button className={projectTab === 'time' ? 'tab active' : 'tab'} onClick={() => setProjectTab('time')}>Time logs</button>
+          <button className={projectTab === 'charts' ? 'tab active' : 'tab'} onClick={() => setProjectTab('charts')}>Sprint charts</button>
           <button className="tab" onClick={() => setProject(null)}>Back to projects</button>
         </nav>
         {projectTab === 'board'
           ? <Board project={project} workspaceId={workspaceId} userId={user.id} onBack={() => setProject(null)} />
           : projectTab === 'planning'
             ? <Planning key={project.id} project={project} workspaceId={workspaceId} />
-            : <TimeLogs key={project.id} project={project} />}
+            : projectTab === 'time'
+              ? <TimeLogs key={project.id} project={project} />
+              : <SprintCharts key={project.id} project={project} />}
 
       </main>
     )
