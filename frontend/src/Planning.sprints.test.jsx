@@ -5,7 +5,7 @@ import { api } from './api.js'
 jest.mock('./api.js', () => ({ api: {
   backlog: jest.fn(), workspaces: jest.fn(), sprints: jest.fn(),
   createBacklog: jest.fn(), updateTask: jest.fn(), createSprint: jest.fn(),
-  assignSprintItems: jest.fn(), removeSprintItem: jest.fn(), startSprint: jest.fn()
+  assignSprintItems: jest.fn(), removeSprintItem: jest.fn(), startSprint: jest.fn(), completeSprint: jest.fn()
 } }))
 
 const project = { id: 'project-1', name: 'Demo' }
@@ -107,4 +107,27 @@ test('switching project clears selection and reloads the workspace role', async 
   expect(screen.getByText('Read-only access.')).toBeInTheDocument()
   expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: 'Create sprint with selected items' })).not.toBeInTheDocument()
+})
+
+
+test('completes an active sprint after confirmation and refreshes its frozen total', async () => {
+  api.sprints.mockResolvedValue([{ ...sprint, status: 'Active' }])
+  const confirm = jest.spyOn(window, 'confirm').mockReturnValue(true)
+  await open()
+  api.sprints.mockResolvedValue([{ ...sprint, status: 'Completed', completed_story_points: 5 }])
+  fireEvent.click(screen.getByRole('button', { name: 'Complete sprint' }))
+  expect(await screen.findByRole('heading', { name: 'Sprint 2 — Completed' })).toBeInTheDocument()
+  expect(api.completeSprint).toHaveBeenCalledWith('sprint-1')
+  expect(screen.queryByRole('button', { name: 'Complete sprint' })).not.toBeInTheDocument()
+  confirm.mockRestore()
+})
+
+test('cancelling completion keeps the sprint active', async () => {
+  api.sprints.mockResolvedValue([{ ...sprint, status: 'Active' }])
+  const confirm = jest.spyOn(window, 'confirm').mockReturnValue(false)
+  await open()
+  fireEvent.click(screen.getByRole('button', { name: 'Complete sprint' }))
+  expect(api.completeSprint).not.toHaveBeenCalled()
+  expect(screen.getByRole('heading', { name: 'Sprint 2 — Active' })).toBeInTheDocument()
+  confirm.mockRestore()
 })

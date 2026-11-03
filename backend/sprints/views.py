@@ -100,6 +100,11 @@ class SprintStartView(SprintErrorsMixin, APIView):
             raise SprintConflict()
         if not sprint.items.exists():
             raise EmptySprint()
+        from django.utils import timezone
+        from .reporting import capture_snapshot, point_totals
         sprint.status = "Active"
-        sprint.save(update_fields=["status"])
+        sprint.started_at = timezone.now()
+        sprint.committed_story_points = point_totals(sprint)["total_points"]
+        sprint.save(update_fields=["status", "started_at", "committed_story_points"])
+        capture_snapshot(sprint.pk)
         return Response(SprintSerializer(sprint).data)

@@ -35,7 +35,7 @@ class SprintSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sprint
-        fields = ["id", "project", "name", "start_date", "end_date", "status", "created_by", "created_at", "total_story_points", "unestimated_count", "items"]
+        fields = ["id", "project", "name", "start_date", "end_date", "status", "created_by", "created_at", "total_story_points", "unestimated_count", "items", "started_at", "completed_at", "committed_story_points", "completed_story_points"]
 
     def get_total_story_points(self, obj):
         return sum(item.story_points or 0 for item in obj.items.all())

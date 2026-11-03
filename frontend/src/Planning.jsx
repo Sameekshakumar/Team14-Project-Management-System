@@ -109,6 +109,12 @@ function PlanningContent({ project, workspaceId }) {
         {canWrite && sprint.status === 'Planned' && ['Backlog', 'To Do'].includes(item.status) && <button className="link-button" disabled={busy} onClick={() => run(() => api.removeSprintItem(sprint.id, item.id))}>Return to backlog</button>}
       </div>)}
       {canWrite && sprint.status === 'Planned' && <button className="submit inline" disabled={busy} onClick={() => run(() => api.startSprint(sprint.id))}>Start sprint</button>}
+      {canWrite && sprint.status === 'Active' && <button className="submit inline" disabled={busy} onClick={() => {
+        if (window.confirm('Complete this sprint? Completed story points will be frozen for velocity. Unfinished tasks stay in this sprint.')) {
+          run(() => api.completeSprint(sprint.id))
+        }
+      }}>Complete sprint</button>}
+      {sprint.status === 'Completed' && <p>Completed velocity: {sprint.completed_story_points ?? 0} story points (frozen at completion).</p>}
     </article>)}
   </section>
 }

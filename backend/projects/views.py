@@ -121,11 +121,14 @@ class TaskDetailViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         require_write(self.request.user, serializer.instance.project.workspace)
         instance = serializer.instance
-        previous = {
-            "title": instance.title, "status": instance.status,
-            "assignee_id": instance.assignee_id,
-        }
         with transaction.atomic():
+            # Same project-first lock order as sprint planning/completion.
+            Project.objects.select_for_update().get(pk=instance.project_id)
+            instance.refresh_from_db()
+            previous = {
+                "title": instance.title, "status": instance.status,
+                "assignee_id": instance.assignee_id,
+            }
             new_status = serializer.validated_data.get("status", instance.status)
             if new_status == Task.STATUS_DONE and instance.status != Task.STATUS_DONE:
                 task = serializer.save(completed_at=timezone.now())
@@ -133,6 +136,9 @@ class TaskDetailViewSet(viewsets.ModelViewSet):
                 task = serializer.save(completed_at=None)
             else:
                 task = serializer.save()
+            if task.sprint_id:
+                from sprints.reporting import capture_snapshot
+                capture_snapshot(task.sprint_id)
             from collaboration.services import record_task_change
             record_task_change(
                 task=task, actor=self.request.user, created=False, previous=previous,
@@ -142,9 +148,17 @@ class TaskDetailViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         require_write(self.request.user, instance.project.workspace)
         with transaction.atomic():
+            Project.objects.select_for_update().get(pk=instance.project_id)
+            instance.refresh_from_db()
+            affected = set(instance.subtasks.exclude(sprint_id=None).values_list("sprint_id", flat=True))
+            if instance.sprint_id:
+                affected.add(instance.sprint_id)
             from collaboration.services import record_task_deletion
             record_task_deletion(task=instance, actor=self.request.user)
             instance.delete()
+            from sprints.reporting import capture_snapshot
+            for sprint_id in sorted(affected):
+                capture_snapshot(sprint_id)
 
 
 class TaskDependencyViewSet(viewsets.ModelViewSet):
