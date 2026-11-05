@@ -27,7 +27,7 @@ export default function Board({ project, workspaceId, userId, onBack }) {
   const [notificationTaskId, setNotificationTaskId] = useState(null)
 
   const refreshTasks = useCallback(() => {
-    api.tasks(project.id).then(setTasks).catch(err => setError(err.message))
+    return api.tasks(project.id).then(setTasks).catch(err => setError(err.message))
   }, [project.id])
 
   const handleSocketEvent = useCallback(event => {
@@ -44,7 +44,7 @@ export default function Board({ project, workspaceId, userId, onBack }) {
     if (String(event.actor) !== String(userId)) refreshTasks()
   }, [refreshTasks, userId])
 
-  useProjectSocket(project.id, handleSocketEvent)
+  const socket = useProjectSocket(project.id, handleSocketEvent, refreshTasks)
 
   useEffect(() => {
     function openTask(event) { setNotificationTaskId(event.detail.taskId) }
@@ -128,6 +128,11 @@ export default function Board({ project, workspaceId, userId, onBack }) {
           <button className="link-button" onClick={onBack}>&larr; Projects</button>
           <h1>{project.name}</h1>
           {project.description && <p className="subheading">{project.description}</p>}
+        </div>
+        <div className={`socket-status ${socket.status}`} role="status" aria-live="polite">
+          <span className="socket-status-dot" />
+          {socket.status === 'connected' ? 'Connected' : socket.status === 'reconnecting' || socket.status === 'connecting' ? 'Reconnecting' : 'Offline'}
+          {socket.status === 'offline' && <button className="link-button" type="button" onClick={socket.reconnectNow}>Reconnect</button>}
         </div>
       </header>
 

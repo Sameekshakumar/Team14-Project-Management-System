@@ -57,7 +57,13 @@ h2 { font: 700 15px Manrope, sans-serif; margin: 0 0 12px; letter-spacing: -.3px
 /* Board */
 .board-screen { display: flex; flex-direction: column; gap: 16px; }
 .board-header h1 { font-size: 24px; margin: 6px 0 0; }
+.board-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .board-header .subheading { margin: 6px 0 0; }
+.socket-status { display: flex; align-items: center; gap: 7px; color: #aebbd0; font-size: 12px; }
+.socket-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #8192ad; }
+.socket-status.connected .socket-status-dot { background: #41c78b; box-shadow: 0 0 8px rgba(65,199,139,.55); }
+.socket-status.reconnecting .socket-status-dot { background: #e0a43b; }
+.socket-status.offline .socket-status-dot { background: #db6878; }
 .task-form { padding: 16px 18px; background: rgba(17, 25, 45, .94); border: 1px solid #2c3b58; border-radius: 14px; }
 .task-form-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: end; }
 .field { display: flex; flex-direction: column; gap: 6px; }
