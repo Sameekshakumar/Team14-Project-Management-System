@@ -68,6 +68,10 @@ class ProjectSocketTests(TransactionTestCase):
             self.assertEqual(message["task_id"], str(self.task.pk))
             self.assertEqual(message["actor"], self.owner.pk)
             self.assertEqual(message["payload"]["task"]["status"], Task.STATUS_IN_PROGRESS)
+            self.assertEqual(
+                set(message["payload"]["task"]),
+                {"id", "title", "status", "assignee"},
+            )
             self.assertTrue(message["timestamp"])
         finally:
             await communicator.disconnect()
