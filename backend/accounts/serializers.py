@@ -1,13 +1,12 @@
+import logging
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from.models import Workspace
-from datetime import timedelta
-from django.utils import timezone
-from rest_framework import serializers
-from .models import WorkspaceInvitation
+from .models import Workspace, WorkspaceInvitation, WorkspaceMembership
+from .permissions import get_user_workspace_role
+from .security_logging import log_security_event
 
 User = get_user_model()
 
@@ -44,15 +43,37 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         email = attrs["email"].strip().lower()
+        request = self.context.get("request")
         user = authenticate(
-            request=self.context.get("request"),
+            request=request,
             email=email,
             password=attrs["password"],
         )
         if user is None:
+            log_security_event(
+                event_type="LOGIN_FAILURE",
+                request=request,
+                attempted_identifier=email,
+                reason="Invalid credentials or user does not exist",
+                level=logging.WARNING,
+            )
             raise serializers.ValidationError({"detail": "Invalid email or password."})
         if not user.is_active:
+            log_security_event(
+                event_type="LOGIN_FAILURE",
+                request=request,
+                user=user,
+                attempted_identifier=email,
+                reason="Account is inactive",
+                level=logging.WARNING,
+            )
             raise serializers.ValidationError({"detail": "This account is inactive."})
+        log_security_event(
+            event_type="LOGIN_SUCCESS",
+            request=request,
+            user=user,
+            attempted_identifier=user.email,
+        )
         refresh = RefreshToken.for_user(user)
         return {
             "user": {"id": user.id, "email": user.email},

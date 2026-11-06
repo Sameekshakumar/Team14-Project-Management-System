@@ -1,4 +1,5 @@
 from datetime import timedelta
+import logging
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -9,9 +10,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from .models import Workspace, WorkspaceInvitation, WorkspaceMembership
 from .permissions import get_user_workspace_role
+from .security_logging import log_security_event
 from .serializers import (
     LoginSerializer,
     RegisterSerializer,
@@ -47,7 +51,56 @@ class LoginView(APIView):
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data, context={"request": request})
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except exceptions.ValidationError:
+            if "detail" not in serializer.errors:
+                log_security_event(
+                    event_type="LOGIN_FAILURE",
+                    request=request,
+                    # The email field has not necessarily passed validation here;
+                    # do not copy attacker controlled malformed input into logs.
+                    attempted_identifier=None,
+                    reason="Malformed login request",
+                    level=logging.WARNING,
+                )
+            raise
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        log_security_event(
+            event_type="LOGOUT",
+            request=request,
+            user=request.user,
+        )
+        return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+
+
+class LoggingTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except exceptions.ValidationError:
+            log_security_event(
+                event_type="TOKEN_INVALID_OR_EXPIRED",
+                request=request,
+                reason="Invalid or expired refresh token",
+                level=logging.WARNING,
+            )
+            raise
+        except TokenError:
+            log_security_event(
+                event_type="TOKEN_INVALID_OR_EXPIRED",
+                request=request,
+                reason="Invalid or expired refresh token",
+                level=logging.WARNING,
+            )
+            raise exceptions.ValidationError("Invalid or expired refresh token.")
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
 
@@ -90,6 +143,14 @@ class WorkspaceDetailView(APIView):
         workspace = self.get_workspace(workspace_id)
         role = get_user_workspace_role(request.user, workspace)
         if role is None:
+            log_security_event(
+                event_type="UNAUTHORIZED_ACCESS",
+                request=request,
+                user=request.user,
+                workspace_id=str(workspace.id),
+                reason="User is not a member of this workspace",
+                level=logging.WARNING,
+            )
             raise PermissionDenied("You are not a member of this workspace.")
         serializer = WorkspaceDetailSerializer(workspace, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -97,6 +158,15 @@ class WorkspaceDetailView(APIView):
     def patch(self, request, workspace_id):
         workspace = self.get_workspace(workspace_id)
         role = get_user_workspace_role(request.user, workspace)
+        if role is None or role in ["Viewer", "Member"]:
+            log_security_event(
+                event_type="UNAUTHORIZED_ACCESS",
+                request=request,
+                user=request.user,
+                workspace_id=str(workspace.id),
+                reason=f"Insufficient role ({role}) for editing workspace",
+                level=logging.WARNING,
+            )
         if role is None:
             raise PermissionDenied("You are not a member of this workspace.")
         if role == "Viewer":
@@ -156,6 +226,14 @@ class WorkspaceMemberDetailView(APIView):
         workspace = get_object_or_404(Workspace, id=workspace_id)
         actor_role = get_user_workspace_role(request.user, workspace)
         if actor_role is None:
+            log_security_event(
+                event_type="UNAUTHORIZED_ACCESS",
+                request=request,
+                user=request.user,
+                workspace_id=str(workspace.id),
+                reason="User is not a member of this workspace",
+                level=logging.WARNING,
+            )
             raise PermissionDenied("You are not a member of this workspace.")
 
         if workspace.owner_id == user_id:
@@ -269,6 +347,14 @@ class WorkspaceMemberDetailView(APIView):
         )
 
         if actor_role not in ["Owner", "Admin"]:
+            log_security_event(
+                event_type="UNAUTHORIZED_ACCESS",
+                request=request,
+                user=request.user,
+                workspace_id=str(workspace.id),
+                reason="Unauthorized attempt to remove member",
+                level=logging.WARNING,
+            )
             raise PermissionDenied("Only workspace Owners and Admins can remove members.")
 
         # Prevent removing the current Owner without a valid ownership transfer
@@ -280,9 +366,26 @@ class WorkspaceMemberDetailView(APIView):
 
         # Admin cannot remove an Owner or another Admin
         if actor_role == "Admin" and target_membership.role in ["Owner", "Admin"]:
+            log_security_event(
+                event_type="UNAUTHORIZED_ACCESS",
+                request=request,
+                user=request.user,
+                workspace_id=str(workspace.id),
+                reason="Admin cannot remove another Admin or Owner",
+                level=logging.WARNING,
+            )
             raise PermissionDenied("Admins cannot remove other Admins or the Owner.")
 
+        removed_user_id = target_membership.user_id
         target_membership.delete()
+
+        log_security_event(
+            event_type="WORKSPACE_MEMBER_REMOVED",
+            request=request,
+            user=request.user,
+            workspace_id=str(workspace.id),
+            extra={"removed_user_id": removed_user_id},
+        )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -297,6 +400,14 @@ class WorkspaceInvitationCreateView(APIView):
 
         role = get_user_workspace_role(request.user, workspace)
         if role not in ["Owner", "Admin"]:
+            log_security_event(
+                event_type="UNAUTHORIZED_ACCESS",
+                request=request,
+                user=request.user,
+                workspace_id=str(workspace.id),
+                reason=f"Role {role} cannot create invitations",
+                level=logging.WARNING,
+            )
             if role == "Viewer":
                 raise PermissionDenied(
                     "Viewers have read-only access and cannot create, edit, or delete content."
