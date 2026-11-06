@@ -258,6 +258,12 @@ class WorkspaceMemberDetailView(APIView):
         return self.patch(request, workspace_id, user_id)
 
     def delete(self, request, workspace_id, user_id):
+        """
+        SEC-005: Immediately revoke workspace access on member removal.
+        Deleting the WorkspaceMembership record ensures that any subsequent
+        requests—even using a still-valid, unexpired JWT—are immediately
+        denied access to this workspace.
+        """
         workspace, actor_role, target_membership = self.get_workspace_and_membership(
             request, workspace_id, user_id
         )
