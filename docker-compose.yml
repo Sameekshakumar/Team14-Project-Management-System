@@ -1,4 +1,18 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: team14-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - team14_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
   db:
     image: postgres:16
     container_name: team14-auth-postgres
@@ -16,5 +30,35 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+  backend:
+    build:
+      context: ./backend
+    container_name: team14-backend
+    restart: unless-stopped
+    command: ["sh", "-c", "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 config.asgi:application"]
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-replace-this-local-development-key}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-True}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-127.0.0.1,localhost,backend}
+      POSTGRES_DB: ${POSTGRES_DB:-team14_project}
+      POSTGRES_USER: ${POSTGRES_USER:-team14_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local_dev_only_change_me}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      CHANNEL_LAYER_BACKEND: redis
+      CHANNEL_REDIS_URL: redis://redis:6379/0
+      CHANNEL_CAPACITY: ${CHANNEL_CAPACITY:-1000}
+      CHANNEL_MESSAGE_EXPIRY: ${CHANNEL_MESSAGE_EXPIRY:-60}
+      WS_MAX_CONNECTIONS_PER_PROJECT: ${WS_MAX_CONNECTIONS_PER_PROJECT:-100}
+      WS_MAX_CONNECTIONS_PER_USER: ${WS_MAX_CONNECTIONS_PER_USER:-50}
+      WS_CONNECTION_LEASE_SECONDS: ${WS_CONNECTION_LEASE_SECONDS:-90}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 volumes:
   team14_postgres_data:
+  team14_redis_data:

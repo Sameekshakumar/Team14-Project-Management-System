@@ -92,7 +92,9 @@ def record_task_change(*, task, actor, created, previous=None, task_data=None):
     payload = {
         "task_id": str(task.pk),
         "actor": actor.pk,
-        "task": task_data or {
+        # Clients reload their authoritative REST board on an event. Keep the
+        # WebSocket frame small and avoid shipping nested subtasks/dependencies.
+        "task": {
             "id": str(task.pk),
             "title": task.title,
             "status": task.status,

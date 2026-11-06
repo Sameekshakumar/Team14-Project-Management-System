@@ -52,15 +52,26 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 CHANNEL_REDIS_URL = os.getenv("CHANNEL_REDIS_URL", "redis://127.0.0.1:6379/0")
-if os.getenv("CHANNEL_LAYER_BACKEND", "memory" if DEBUG else "redis") == "memory":
+CHANNEL_LAYER_BACKEND = os.getenv("CHANNEL_LAYER_BACKEND", "memory" if DEBUG else "redis")
+if CHANNEL_LAYER_BACKEND == "memory":
     CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 else:
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
-            "CONFIG": {"hosts": [CHANNEL_REDIS_URL]},
+            "CONFIG": {
+                "hosts": [CHANNEL_REDIS_URL],
+                "capacity": int(os.getenv("CHANNEL_CAPACITY", "1000")),
+                "expiry": int(os.getenv("CHANNEL_MESSAGE_EXPIRY", "60")),
+            },
         }
     }
+
+# Redis sorted-set leases make the connection limits resilient to worker
+# crashes: a dead worker's slots expire even when disconnect() never runs.
+WS_MAX_CONNECTIONS_PER_PROJECT = int(os.getenv("WS_MAX_CONNECTIONS_PER_PROJECT", "100"))
+WS_MAX_CONNECTIONS_PER_USER = int(os.getenv("WS_MAX_CONNECTIONS_PER_USER", "50"))
+WS_CONNECTION_LEASE_SECONDS = int(os.getenv("WS_CONNECTION_LEASE_SECONDS", "90"))
 
 # PostgreSQL is the project database, as specified in the Team 14 SRS.
 DATABASES = {

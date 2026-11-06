@@ -17,9 +17,46 @@ daphne -b 127.0.0.1 -p 8000 config.asgi:application
 ```
 
 In debug mode the channel layer uses in-memory channels, which is enough for a
-single local server process. For multiple backend processes, set
-`CHANNEL_LAYER_BACKEND=redis` and `CHANNEL_REDIS_URL` to a reachable Redis
-instance.
+single local server process. The Compose backend runs Daphne with the Redis
+channel layer so multiple ASGI workers can deliver the same project events.
+Configure channel capacity and message expiry with `CHANNEL_CAPACITY` and
+`CHANNEL_MESSAGE_EXPIRY`.
+
+## Connection limits and load test
+
+Redis also holds expiring connection leases so a crashed ASGI worker does not
+permanently consume a connection slot. `WS_MAX_CONNECTIONS_PER_PROJECT`
+defaults to 100, `WS_MAX_CONNECTIONS_PER_USER` defaults to 50, and
+`WS_CONNECTION_LEASE_SECONDS` defaults to 90. The browser refreshes its lease
+with each 25-second heartbeat. A connection refused by either limit closes
+with WebSocket code 4429. In-memory development and tests bypass distributed
+quotas.
+
+Start the database, Redis, and ASGI backend from the repository root:
+
+```sh
+docker compose up -d --build db redis backend
+```
+
+Run the load test from `backend/` after creating a project task and an access
+token for a workspace member. The task is temporarily renamed and then restored.
+Set `PROJECT_ID`, `TASK_ID`, and `ACCESS_TOKEN` for 50 sockets using one member,
+or provide `ACCESS_TOKENS_FILE` with one JWT per line to distribute sockets
+across members. Then run:
+
+```sh
+python -m pip install -r tests/load/requirements.txt
+python tests/load/load_websockets.py
+```
+
+Optional environment variables are `CLIENTS` (default 50), `API_BASE_URL`,
+`WS_BASE_URL`, and `CONNECT_TIMEOUT`. The script reports successful
+connections, delivered task updates, and min/median/p95/max end-to-end delivery
+latency. Use the same machine and Redis/backend configuration when comparing
+runs. The target is 50/50 connected and all 50 updates delivered with p95
+under 1 second. No benchmark number is claimed here until the Redis-backed
+load test has actually run; an in-memory channel layer is not a valid
+scalability measurement.
 
 ## Check updates manually
 
