@@ -59,6 +59,17 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+  frontend:
+    build:
+      context: ./frontend
+    container_name: team14-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://127.0.0.1:8000}
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
 volumes:
   team14_postgres_data:
   team14_redis_data:
