@@ -56,7 +56,7 @@ class Workspace(models.Model):
     editable=False,
 )
     name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, default="")
+    description = models.TextField(blank=True, default="", max_length=5000)
     owner = models.ForeignKey(
         User,
         on_delete=models.PROTECT,

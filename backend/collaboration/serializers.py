@@ -1,9 +1,10 @@
 import re
 
-import bleach
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from rest_framework import serializers
+
+from common.validators import SanitizedTextMixin
 
 from .models import ActivityEvent, Mention, Notification, TaskComment
 
@@ -11,7 +12,7 @@ User = get_user_model()
 MENTION_PATTERN = re.compile(r"(?<![\w.+-])@([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})", re.IGNORECASE)
 
 
-class TaskCommentSerializer(serializers.ModelSerializer):
+class TaskCommentSerializer(SanitizedTextMixin, serializers.ModelSerializer):
     author_email = serializers.EmailField(source="author.email", read_only=True, default=None)
     mentioned_users = serializers.SerializerMethodField()
 
@@ -23,12 +24,6 @@ class TaskCommentSerializer(serializers.ModelSerializer):
     def get_mentioned_users(self, comment):
         return [{"id": mention.mentioned_user_id, "email": mention.mentioned_user.email}
                 for mention in comment.mentions.select_related("mentioned_user")]
-
-    def validate_body(self, value):
-        value = bleach.clean(value.strip(), tags=[], attributes={}, strip=True, strip_comments=True)
-        if not value:
-            raise serializers.ValidationError("Comment cannot be empty.")
-        return value
 
     def validate(self, attrs):
         task = self.context["task"]
