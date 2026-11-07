@@ -2,6 +2,7 @@ from django.apps import apps
 from rest_framework import serializers
 
 from accounts.permissions import get_user_workspace_role
+from common.validators import SanitizedTextMixin
 
 from .models import (
     Project,
@@ -12,17 +13,11 @@ from .models import (
 )
 
 
-class ProjectSerializer(serializers.ModelSerializer):
+class ProjectSerializer(SanitizedTextMixin, serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ["id", "workspace", "name", "description", "created_by", "created_at"]
         read_only_fields = ["id", "workspace", "created_by", "created_at"]
-
-    def validate_name(self, value):
-        value = value.strip()
-        if not value:
-            raise serializers.ValidationError("Project name cannot be empty.")
-        return value
 
     def validate(self, attrs):
         # UniqueConstraint spans workspace, which is set by the view, so the
@@ -49,7 +44,7 @@ class SubtaskSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class TaskSerializer(serializers.ModelSerializer):
+class TaskSerializer(SanitizedTextMixin, serializers.ModelSerializer):
     completed_at = serializers.DateTimeField(read_only=True)
     story_points = serializers.IntegerField(min_value=0, max_value=2147483647, allow_null=True, required=False)
     subtasks = SubtaskSerializer(many=True, read_only=True)
@@ -98,12 +93,6 @@ class TaskSerializer(serializers.ModelSerializer):
             dependency.depends_on.status != Task.STATUS_DONE
             for dependency in obj.dependencies.all()
         )
-
-    def validate_title(self, value):
-        value = value.strip()
-        if not value:
-            raise serializers.ValidationError("Task title cannot be empty.")
-        return value
 
     def validate_assignee(self, value):
         # FR-TASK-02: a task is assigned to a member of the project's workspace.

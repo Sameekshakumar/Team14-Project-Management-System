@@ -1,4 +1,7 @@
 from rest_framework import serializers
+
+from common.validators import SanitizedTextMixin
+
 from .models import Sprint
 
 
@@ -11,7 +14,7 @@ class ItemIdsSerializer(serializers.Serializer):
         return value
 
 
-class SprintCreateSerializer(serializers.ModelSerializer):
+class SprintCreateSerializer(SanitizedTextMixin, serializers.ModelSerializer):
     project = serializers.UUIDField()
     item_ids = serializers.ListField(child=serializers.UUIDField(), required=False, default=list, max_length=1000)
 

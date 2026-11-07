@@ -4,6 +4,8 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
+from common.validators import SanitizedTextMixin
+
 from .models import Workspace, WorkspaceInvitation, WorkspaceMembership
 from .permissions import get_user_workspace_role
 from .security_logging import log_security_event
@@ -92,7 +94,7 @@ from .models import Workspace, WorkspaceInvitation, WorkspaceMembership
 from .permissions import get_user_workspace_role
 
 
-class WorkspaceSerializer(serializers.ModelSerializer):
+class WorkspaceSerializer(SanitizedTextMixin, serializers.ModelSerializer):
     current_user_role = serializers.SerializerMethodField()
 
     class Meta:
@@ -105,14 +107,6 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return get_user_workspace_role(request.user, obj)
         return None
-
-    def validate_name(self, value):
-        value = value.strip()
-        if not value:
-            raise serializers.ValidationError(
-                "Workspace name cannot be empty."
-            )
-        return value
 
 
 class WorkspaceDetailSerializer(serializers.ModelSerializer):

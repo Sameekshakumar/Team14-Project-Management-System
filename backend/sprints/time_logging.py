@@ -5,13 +5,14 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from common.validators import SanitizedTextMixin
 from projects.models import Task
 from projects.permissions import require_member, require_write
 from .exceptions import SprintErrorsMixin
 from .models import TimeEntry
 
 
-class TimeEntrySerializer(serializers.ModelSerializer):
+class TimeEntrySerializer(SanitizedTextMixin, serializers.ModelSerializer):
     minutes = serializers.IntegerField(min_value=1, max_value=2147483647)
     user_email = serializers.SerializerMethodField()
 
