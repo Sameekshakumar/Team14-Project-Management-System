@@ -1,0 +1,513 @@
+﻿Command exited with code 0.
+
+Command output:
+Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+Found 260 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: channels, corsheaders, messages, rest_framework, staticfiles
+  Apply all migrations: accounts, admin, auth, collaboration, contenttypes, projects, sessions, sprints
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying accounts.0002_workspace... OK
+  Applying accounts.0003_workspaceinvitation_workspacemembership... OK
+  Applying accounts.0004_alter_workspace_description... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying projects.0001_initial... OK
+  Applying projects.0002_task... OK
+  Applying projects.0003_taskdependency... OK
+  Applying collaboration.0001_task_comments_and_mentions... OK
+  Applying collaboration.0002_activity_and_notifications... OK
+  Applying projects.0004_task_story_points... OK
+  Applying sprints.0001_initial... OK
+  Applying projects.0005_task_sprint... OK
+  Applying projects.0006_task_analytics_fields... OK
+  Applying projects.0007_alter_project_description_alter_task_description... OK
+  Applying sessions.0001_initial... OK
+  Applying sprints.0002_timeentry... OK
+  Applying sprints.0003_sprint_reporting...test_duplicate_email_is_rejected_case_insensitively (accounts.tests.RegistrationLoginTests.test_duplicate_email_is_rejected_case_insensitively) ... ok
+test_login_rejects_wrong_password (accounts.tests.RegistrationLoginTests.test_login_rejects_wrong_password) ... [2026-11-14 21:57:17,728] WARNING security: SECURITY_EVENT: event_type=LOGIN_FAILURE timestamp=2026-11-14T16:27:17.728221+00:00 user_id=None attempted_identifier=samarth@example.com ip=127.0.0.1 workspace_id=None details={'reason': 'Invalid credentials or user does not exist'}
+ok
+test_login_returns_tokens_for_valid_credentials (accounts.tests.RegistrationLoginTests.test_login_returns_tokens_for_valid_credentials) ... [2026-11-14 21:57:19,770] INFO security: SECURITY_EVENT: event_type=LOGIN_SUCCESS timestamp=2026-11-14T16:27:19.769779+00:00 user_id=1 attempted_identifier=samarth@example.com ip=127.0.0.1 workspace_id=None details={}
+ok
+test_registration_creates_user_and_returns_tokens (accounts.tests.RegistrationLoginTests.test_registration_creates_user_and_returns_tokens) ... ok
+test_registration_rejects_invalid_email (accounts.tests.RegistrationLoginTests.test_registration_rejects_invalid_email) ... ok
+test_admin_and_owner_permissions (accounts.tests.RoleBasedAccessControlTests.test_admin_and_owner_permissions) ... ok
+test_admin_can_assign_member_and_viewer_roles (accounts.tests.RoleBasedAccessControlTests.test_admin_can_assign_member_and_viewer_roles) ... ok
+test_admin_cannot_assign_owner_role (accounts.tests.RoleBasedAccessControlTests.test_admin_cannot_assign_owner_role) ... ok
+test_admin_cannot_modify_owner_role (accounts.tests.RoleBasedAccessControlTests.test_admin_cannot_modify_owner_role) ... ok
+test_admin_cannot_remove_another_admin (accounts.tests.RoleBasedAccessControlTests.test_admin_cannot_remove_another_admin) ... [2026-11-14 21:57:42,130] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:27:42.129613+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=c3a3bfcc-9bd7-4aad-bc05-4041f6e79108 details={'reason': 'Admin cannot remove another Admin or Owner'}
+ok
+test_atomic_ownership_transfer (accounts.tests.RoleBasedAccessControlTests.test_atomic_ownership_transfer) ... ok
+test_cannot_demote_or_remove_owner_without_transfer (accounts.tests.RoleBasedAccessControlTests.test_cannot_demote_or_remove_owner_without_transfer) ... ok
+test_cross_workspace_isolation (accounts.tests.RoleBasedAccessControlTests.test_cross_workspace_isolation) ... [2026-11-14 21:57:53,903] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:27:53.903089+00:00 user_id=5 attempted_identifier=None ip=127.0.0.1 workspace_id=1808491f-d895-49bf-bf06-5827cefbed29 details={'reason': 'User is not a member of this workspace'}
+[2026-11-14 21:57:53,912] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:27:53.912448+00:00 user_id=5 attempted_identifier=None ip=127.0.0.1 workspace_id=1808491f-d895-49bf-bf06-5827cefbed29 details={'reason': 'User is not a member of this workspace'}
+ok
+test_invalid_role_choice_is_rejected (accounts.tests.RoleBasedAccessControlTests.test_invalid_role_choice_is_rejected) ... ok
+test_member_and_viewer_cannot_assign_roles (accounts.tests.RoleBasedAccessControlTests.test_member_and_viewer_cannot_assign_roles) ... ok
+test_member_removal_and_immediate_access_revocation (accounts.tests.RoleBasedAccessControlTests.test_member_removal_and_immediate_access_revocation) ... [2026-11-14 21:58:06,553] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:28:06.553568+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=03a86e62-f453-44b7-baff-ef1c042e1abb details={'removed_user_id': 3}
+[2026-11-14 21:58:06,559] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:28:06.558800+00:00 user_id=3 attempted_identifier=None ip=127.0.0.1 workspace_id=03a86e62-f453-44b7-baff-ef1c042e1abb details={'reason': 'User is not a member of this workspace'}
+ok
+test_member_write_restrictions_on_workspace (accounts.tests.RoleBasedAccessControlTests.test_member_write_restrictions_on_workspace) ... [2026-11-14 21:58:10,242] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:28:10.242189+00:00 user_id=3 attempted_identifier=None ip=127.0.0.1 workspace_id=ddfff04c-f154-4d4d-80fe-58067e12fe1e details={'reason': 'Insufficient role (Member) for editing workspace'}
+[2026-11-14 21:58:10,252] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:28:10.252301+00:00 user_id=3 attempted_identifier=None ip=127.0.0.1 workspace_id=ddfff04c-f154-4d4d-80fe-58067e12fe1e details={'reason': 'Role Member cannot create invitations'}
+ok
+test_non_existent_member_returns_404 (accounts.tests.RoleBasedAccessControlTests.test_non_existent_member_returns_404) ... ok
+test_owner_can_assign_admin_and_viewer_roles (accounts.tests.RoleBasedAccessControlTests.test_owner_can_assign_admin_and_viewer_roles) ... ok
+test_role_persistence_and_subsequent_permission_enforcement (accounts.tests.RoleBasedAccessControlTests.test_role_persistence_and_subsequent_permission_enforcement) ... [2026-11-14 21:58:22,392] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:28:22.392375+00:00 user_id=4 attempted_identifier=None ip=127.0.0.1 workspace_id=8de0ac19-8a2c-4279-ae31-5f6e129f1293 details={'reason': 'Insufficient role (Viewer) for editing workspace'}
+ok
+test_user_cannot_self_escalate_role (accounts.tests.RoleBasedAccessControlTests.test_user_cannot_self_escalate_role) ... ok
+test_viewer_read_only_and_write_restrictions (accounts.tests.RoleBasedAccessControlTests.test_viewer_read_only_and_write_restrictions) ... [2026-11-14 21:58:30,316] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:28:30.316816+00:00 user_id=4 attempted_identifier=None ip=127.0.0.1 workspace_id=0463e283-e37c-48a2-b0b8-6cb0d7a778ca details={'reason': 'Insufficient role (Viewer) for editing workspace'}
+[2026-11-14 21:58:30,326] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:28:30.326751+00:00 user_id=4 attempted_identifier=None ip=127.0.0.1 workspace_id=0463e283-e37c-48a2-b0b8-6cb0d7a778ca details={'reason': 'Role Viewer cannot create invitations'}
+ok
+test_workspace_creation_atomically_creates_owner_membership (accounts.tests.RoleBasedAccessControlTests.test_workspace_creation_atomically_creates_owner_membership) ... ok
+test_authenticated_user_can_create_workspace (accounts.tests.WorkspaceCreationTests.test_authenticated_user_can_create_workspace) ... ok
+test_empty_workspace_name_is_rejected (accounts.tests.WorkspaceCreationTests.test_empty_workspace_name_is_rejected) ... ok
+test_unauthenticated_user_cannot_create_workspace (accounts.tests.WorkspaceCreationTests.test_unauthenticated_user_cannot_create_workspace) ... ok
+test_expired_invitation_is_rejected (accounts.tests.WorkspaceInvitationTests.test_expired_invitation_is_rejected) ... ok
+test_member_can_accept_valid_invitation (accounts.tests.WorkspaceInvitationTests.test_member_can_accept_valid_invitation) ... ok
+test_non_owner_cannot_create_invitation (accounts.tests.WorkspaceInvitationTests.test_non_owner_cannot_create_invitation) ... [2026-11-14 21:58:44,515] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:28:44.515867+00:00 user_id=3 attempted_identifier=None ip=127.0.0.1 workspace_id=de34c8f6-9dc5-46c5-a6f6-0267b11e5baa details={'reason': 'Role None cannot create invitations'}
+ok
+test_owner_can_create_invitation (accounts.tests.WorkspaceInvitationTests.test_owner_can_create_invitation) ... ok
+test_used_invitation_cannot_be_accepted_again (accounts.tests.WorkspaceInvitationTests.test_used_invitation_cannot_be_accepted_again) ... ok
+test_creating_a_workspace_still_works (accounts.tests.WorkspaceListTests.test_creating_a_workspace_still_works) ... ok
+test_member_sees_only_workspaces_they_belong_to (accounts.tests.WorkspaceListTests.test_member_sees_only_workspaces_they_belong_to) ... ok
+test_owner_sees_owned_workspace_once (accounts.tests.WorkspaceListTests.test_owner_sees_owned_workspace_once) ... ok
+test_unauthenticated_user_cannot_list_workspaces (accounts.tests.WorkspaceListTests.test_unauthenticated_user_cannot_list_workspaces) ... ok
+test_user_with_no_workspaces_gets_empty_list (accounts.tests.WorkspaceListTests.test_user_with_no_workspaces_gets_empty_list) ... ok
+test_admin_can_create_invitation (accounts.tests_issue10_viewer_readonly.AuthorizedRolePermissionsTests.test_admin_can_create_invitation)
+Admin must be able to create invitations. ... ok
+test_admin_can_patch_workspace (accounts.tests_issue10_viewer_readonly.AuthorizedRolePermissionsTests.test_admin_can_patch_workspace)
+Admin must be able to update the workspace. ... ok
+test_member_cannot_patch_workspace (accounts.tests_issue10_viewer_readonly.AuthorizedRolePermissionsTests.test_member_cannot_patch_workspace)
+Member must not be able to update workspace settings. ... [2026-11-14 21:59:09,705] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:29:09.705176+00:00 user_id=3 attempted_identifier=None ip=127.0.0.1 workspace_id=fde40a43-3619-403c-8454-b31f64526b32 details={'reason': 'Insufficient role (Member) for editing workspace'}
+ok
+test_owner_can_delete_workspace (accounts.tests_issue10_viewer_readonly.AuthorizedRolePermissionsTests.test_owner_can_delete_workspace)
+Owner must be able to delete the workspace. ... ok
+test_owner_can_patch_workspace (accounts.tests_issue10_viewer_readonly.AuthorizedRolePermissionsTests.test_owner_can_patch_workspace)
+Owner must be able to update the workspace. ... ok
+test_viewer_can_get_workspace_detail (accounts.tests_issue10_viewer_readonly.ViewerReadOnlyWorkspaceTests.test_viewer_can_get_workspace_detail)
+Viewer must be able to GET workspace details (read is permitted). ... ok
+test_viewer_can_list_workspace_members (accounts.tests_issue10_viewer_readonly.ViewerReadOnlyWorkspaceTests.test_viewer_can_list_workspace_members)
+Viewer must be able to GET the members list (read is permitted). ... ok
+test_viewer_cannot_assign_roles (accounts.tests_issue10_viewer_readonly.ViewerReadOnlyWorkspaceTests.test_viewer_cannot_assign_roles)
+Viewer must receive 403 when attempting to assign a role to a member. ... ok
+test_viewer_cannot_create_invitation (accounts.tests_issue10_viewer_readonly.ViewerReadOnlyWorkspaceTests.test_viewer_cannot_create_invitation)
+Viewer must receive 403 when attempting to create a workspace invitation. ... [2026-11-14 21:59:22,027] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:29:22.027186+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=b5005754-cc44-4327-b5c2-60e5534e208c details={'reason': 'Role Viewer cannot create invitations'}
+ok
+test_viewer_cannot_create_workspace (accounts.tests_issue10_viewer_readonly.ViewerReadOnlyWorkspaceTests.test_viewer_cannot_create_workspace)
+Viewer of one workspace can still create their own workspace (creating is not forbidden). ... ok
+test_viewer_cannot_delete_workspace (accounts.tests_issue10_viewer_readonly.ViewerReadOnlyWorkspaceTests.test_viewer_cannot_delete_workspace)
+Viewer must receive 403 when attempting DELETE on a workspace. ... ok
+test_viewer_cannot_patch_workspace (accounts.tests_issue10_viewer_readonly.ViewerReadOnlyWorkspaceTests.test_viewer_cannot_patch_workspace)
+Viewer must receive 403 when attempting PATCH on a workspace. ... [2026-11-14 21:59:26,433] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:29:26.433317+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=f8a5585c-a355-47ce-a66a-26024fee5027 details={'reason': 'Insufficient role (Viewer) for editing workspace'}
+ok
+test_viewer_cannot_put_workspace (accounts.tests_issue10_viewer_readonly.ViewerReadOnlyWorkspaceTests.test_viewer_cannot_put_workspace)
+Viewer must receive 403 when attempting PUT on a workspace. ... [2026-11-14 21:59:27,510] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:29:27.510256+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=1d79e7a0-b00e-4553-9129-eb36e1e94e75 details={'reason': 'Insufficient role (Viewer) for editing workspace'}
+ok
+test_viewer_cannot_remove_member (accounts.tests_issue10_viewer_readonly.ViewerReadOnlyWorkspaceTests.test_viewer_cannot_remove_member)
+Viewer must receive 403 when attempting to remove a member. ... [2026-11-14 21:59:29,068] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:29:29.068581+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=d985c6cb-921f-4910-b398-71ddd2bf8cba details={'reason': 'Unauthorized attempt to remove member'}
+ok
+test_viewer_cannot_self_escalate_via_role_endpoint (accounts.tests_issue10_viewer_readonly.ViewerRolePersistenceAndEscalationTests.test_viewer_cannot_self_escalate_via_role_endpoint)
+A Viewer attempting to PATCH their own role to Admin must be denied. ... ok
+test_viewer_demoted_from_member_loses_write_access_immediately (accounts.tests_issue10_viewer_readonly.ViewerRolePersistenceAndEscalationTests.test_viewer_demoted_from_member_loses_write_access_immediately)
+After a user is downgraded from Member to Viewer, writes must be rejected. ... [2026-11-14 21:59:31,665] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:29:31.665703+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=3db18f95-aaec-4e6e-9006-66f8715a57a3 details={'reason': 'Insufficient role (Viewer) for editing workspace'}
+ok
+test_viewer_from_another_workspace_cannot_access_this_workspace (accounts.tests_issue10_viewer_readonly.ViewerRolePersistenceAndEscalationTests.test_viewer_from_another_workspace_cannot_access_this_workspace)
+A Viewer of one workspace must not access a different workspace. ... [2026-11-14 21:59:34,185] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:29:34.185139+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=a19402f5-195f-46d1-ac20-a65ee322f808 details={'reason': 'User is not a member of this workspace'}
+ok
+test_expired_access_token_returns_401 (accounts.tests_issue11_token_validation.ExpiredAccessTokenRejectedTests.test_expired_access_token_returns_401)
+Create a token that is already set to expire in the past, then ... [2026-11-14 21:59:35,105] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:35.105618+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_valid_token_after_expiry_patch_is_still_accepted (accounts.tests_issue11_token_validation.ExpiredAccessTokenRejectedTests.test_valid_token_after_expiry_patch_is_still_accepted)
+Sanity check: a non-expired token must still be accepted. ... ok
+test_all_dots_is_rejected (accounts.tests_issue11_token_validation.MalformedTokenRejectedTests.test_all_dots_is_rejected) ... [2026-11-14 21:59:36,811] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:36.811676+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_garbage_bytes_are_rejected (accounts.tests_issue11_token_validation.MalformedTokenRejectedTests.test_garbage_bytes_are_rejected) ... [2026-11-14 21:59:37,569] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:37.569310+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_number_is_rejected (accounts.tests_issue11_token_validation.MalformedTokenRejectedTests.test_number_is_rejected) ... [2026-11-14 21:59:38,310] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:38.310320+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_random_string_is_rejected (accounts.tests_issue11_token_validation.MalformedTokenRejectedTests.test_random_string_is_rejected) ... [2026-11-14 21:59:39,217] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:39.217722+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_single_segment_is_rejected (accounts.tests_issue11_token_validation.MalformedTokenRejectedTests.test_single_segment_is_rejected) ... [2026-11-14 21:59:39,968] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:39.968214+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_sql_injection_string_is_rejected (accounts.tests_issue11_token_validation.MalformedTokenRejectedTests.test_sql_injection_string_is_rejected) ... [2026-11-14 21:59:40,915] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:40.915937+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_two_segment_is_rejected (accounts.tests_issue11_token_validation.MalformedTokenRejectedTests.test_two_segment_is_rejected) ... [2026-11-14 21:59:41,893] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:41.893452+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_empty_bearer_returns_401 (accounts.tests_issue11_token_validation.MissingTokenRejectedTests.test_empty_bearer_returns_401)
+A 'Bearer ' header with no value must return 401. ... [2026-11-14 21:59:42,659] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:42.659215+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_no_token_returns_401_on_protected_endpoint (accounts.tests_issue11_token_validation.MissingTokenRejectedTests.test_no_token_returns_401_on_protected_endpoint)
+A request with no token must return 401 Unauthorized. ... ok
+test_workspace_endpoint_accepts_valid_token (accounts.tests_issue11_token_validation.ProtectedEndpointTokenValidationTests.test_workspace_endpoint_accepts_valid_token)
+Workspace detail endpoint must accept a valid access token. ... ok
+test_workspace_endpoint_rejects_expired_token (accounts.tests_issue11_token_validation.ProtectedEndpointTokenValidationTests.test_workspace_endpoint_rejects_expired_token)
+Workspace detail endpoint must reject expired access tokens. ... [2026-11-14 21:59:45,376] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:45.376943+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_workspace_endpoint_rejects_missing_token (accounts.tests_issue11_token_validation.ProtectedEndpointTokenValidationTests.test_workspace_endpoint_rejects_missing_token)
+Workspace detail endpoint must reject unauthenticated requests. ... ok
+test_tampered_signature_is_rejected (accounts.tests_issue11_token_validation.TamperedTokenRejectedTests.test_tampered_signature_is_rejected)
+A JWT whose signature has been altered must be rejected. ... [2026-11-14 21:59:47,285] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:47.285593+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_token_from_different_user_cannot_impersonate (accounts.tests_issue11_token_validation.TamperedTokenRejectedTests.test_token_from_different_user_cannot_impersonate)
+A token issued for user A must not give access as user B. ... ok
+test_token_with_wrong_signature_section_is_rejected (accounts.tests_issue11_token_validation.TamperedTokenRejectedTests.test_token_with_wrong_signature_section_is_rejected)
+A JWT whose signature section is replaced entirely must be rejected. ... [2026-11-14 21:59:49,526] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:49.526178+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_expired_refresh_token_is_rejected (accounts.tests_issue11_token_validation.TokenRefreshTests.test_expired_refresh_token_is_rejected)
+An expired refresh token must be rejected. ... [2026-11-14 21:59:50,460] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:50.460277+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Invalid or expired refresh token'}
+ok
+test_malformed_refresh_token_is_rejected (accounts.tests_issue11_token_validation.TokenRefreshTests.test_malformed_refresh_token_is_rejected)
+A malformed string sent as a refresh token must be rejected. ... [2026-11-14 21:59:51,284] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:51.284206+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Invalid or expired refresh token'}
+ok
+test_missing_refresh_token_is_rejected (accounts.tests_issue11_token_validation.TokenRefreshTests.test_missing_refresh_token_is_rejected)
+A request to /token/refresh/ with no refresh field must be rejected. ... [2026-11-14 21:59:52,200] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:29:52.200539+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Invalid or expired refresh token'}
+ok
+test_new_access_token_from_refresh_grants_access (accounts.tests_issue11_token_validation.TokenRefreshTests.test_new_access_token_from_refresh_grants_access)
+The new access token obtained via refresh must actually work on /me. ... ok
+test_valid_refresh_token_returns_new_access_token (accounts.tests_issue11_token_validation.TokenRefreshTests.test_valid_refresh_token_returns_new_access_token)
+A valid refresh token submitted to /token/refresh/ must return a new access token. ... ok
+test_valid_access_token_allows_access_to_me (accounts.tests_issue11_token_validation.ValidTokenAcceptedTests.test_valid_access_token_allows_access_to_me)
+A freshly issued access token must grant access to /me. ... ok
+test_owner_cannot_be_removed (accounts.tests_issue22_access_revocation.EdgeCasesTests.test_owner_cannot_be_removed)
+The workspace Owner cannot be removed via the member endpoint. ... ok
+test_removed_member_does_not_affect_workspace_ownership (accounts.tests_issue22_access_revocation.EdgeCasesTests.test_removed_member_does_not_affect_workspace_ownership)
+Removing a regular member does not change workspace ownership. ... [2026-11-14 21:59:58,339] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:29:58.339334+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=6a595317-b860-40b2-bcbe-f60639a63856 details={'removed_user_id': 2}
+ok
+test_removed_member_jwt_still_valid_for_non_workspace_endpoints (accounts.tests_issue22_access_revocation.EdgeCasesTests.test_removed_member_jwt_still_valid_for_non_workspace_endpoints)
+The old JWT remains valid for non-workspace endpoints (like /me). ... [2026-11-14 22:00:00,110] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:00.110504+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=1965ce23-7c5e-48eb-9910-5f664969ab81 details={'removed_user_id': 2}
+ok
+test_admin_still_has_access_after_removal (accounts.tests_issue22_access_revocation.ExistingMembersUnaffectedTests.test_admin_still_has_access_after_removal) ... [2026-11-14 22:00:03,253] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:03.253801+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=dcfc9b49-393c-4cef-8d96-2999f4abf4e6 details={'removed_user_id': 3}
+ok
+test_owner_still_has_full_access_after_removal (accounts.tests_issue22_access_revocation.ExistingMembersUnaffectedTests.test_owner_still_has_full_access_after_removal) ... [2026-11-14 22:00:06,361] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:06.361170+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=908f854c-32e0-477b-8884-3bb168adfab6 details={'removed_user_id': 3}
+ok
+test_viewer_still_has_read_access_after_removal (accounts.tests_issue22_access_revocation.ExistingMembersUnaffectedTests.test_viewer_still_has_read_access_after_removal) ... [2026-11-14 22:00:09,970] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:09.970057+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=026c2ce6-2f8f-4b84-8d51-fd51ceba8401 details={'removed_user_id': 3}
+ok
+test_admin_successfully_removes_member (accounts.tests_issue22_access_revocation.MemberAccessBeforeAndAfterRemovalTests.test_admin_successfully_removes_member)
+An Admin can remove a plain Member. ... [2026-11-14 22:00:11,744] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:11.744598+00:00 user_id=3 attempted_identifier=None ip=127.0.0.1 workspace_id=f77d9330-e7a7-474b-be40-45356d7ecc92 details={'removed_user_id': 2}
+ok
+test_member_can_access_workspace_before_removal (accounts.tests_issue22_access_revocation.MemberAccessBeforeAndAfterRemovalTests.test_member_can_access_workspace_before_removal)
+A member with a valid JWT must be able to GET the workspace. ... ok
+test_member_can_list_workspace_members_before_removal (accounts.tests_issue22_access_revocation.MemberAccessBeforeAndAfterRemovalTests.test_member_can_list_workspace_members_before_removal)
+A member can list workspace members before being removed. ... ok
+test_owner_successfully_removes_member (accounts.tests_issue22_access_revocation.MemberAccessBeforeAndAfterRemovalTests.test_owner_successfully_removes_member)
+An Owner can remove a Member; the membership row is deleted. ... [2026-11-14 22:00:14,921] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:14.921352+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=31e1e2f7-8ed3-493a-a7aa-e1d1a43c8840 details={'removed_user_id': 2}
+ok
+test_removed_member_cannot_access_member_detail (accounts.tests_issue22_access_revocation.MemberAccessBeforeAndAfterRemovalTests.test_removed_member_cannot_access_member_detail)
+Removed member's JWT is denied on member detail endpoint. ... [2026-11-14 22:00:15,952] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:15.952468+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=67aafe4d-777f-40c9-8120-49f6f6795760 details={'removed_user_id': 2}
+[2026-11-14 22:00:15,959] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:30:15.959359+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=67aafe4d-777f-40c9-8120-49f6f6795760 details={'reason': 'User is not a member of this workspace'}
+ok
+test_removed_member_cannot_invite_new_members (accounts.tests_issue22_access_revocation.MemberAccessBeforeAndAfterRemovalTests.test_removed_member_cannot_invite_new_members)
+A removed user (formerly Admin) cannot create an invitation using ... [2026-11-14 22:00:17,146] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:17.146080+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=4c7553d6-4191-4212-9d8c-df151cd9ed30 details={'removed_user_id': 2}
+[2026-11-14 22:00:17,162] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:30:17.162653+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=4c7553d6-4191-4212-9d8c-df151cd9ed30 details={'reason': 'Role None cannot create invitations'}
+ok
+test_removed_member_cannot_perform_write_operations (accounts.tests_issue22_access_revocation.MemberAccessBeforeAndAfterRemovalTests.test_removed_member_cannot_perform_write_operations)
+Removed member's JWT is denied on PATCH /workspaces/{id}/. ... [2026-11-14 22:00:18,370] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:18.370426+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=a918632a-a02a-42fd-a440-e1977da7fb9c details={'removed_user_id': 2}
+[2026-11-14 22:00:18,385] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:30:18.385199+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=a918632a-a02a-42fd-a440-e1977da7fb9c details={'reason': 'Insufficient role (None) for editing workspace'}
+ok
+test_removed_member_jwt_denied_on_member_list (accounts.tests_issue22_access_revocation.MemberAccessBeforeAndAfterRemovalTests.test_removed_member_jwt_denied_on_member_list)
+Removed member's JWT is denied on GET /workspaces/{id}/members/. ... [2026-11-14 22:00:19,519] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:19.519042+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=b2a3da85-cbb4-48df-a267-d2137aaeb344 details={'removed_user_id': 2}
+ok
+test_removed_member_jwt_denied_on_workspace_detail (accounts.tests_issue22_access_revocation.MemberAccessBeforeAndAfterRemovalTests.test_removed_member_jwt_denied_on_workspace_detail)
+A member's old, still-valid JWT must be denied on GET /workspaces/{id}/ ... [2026-11-14 22:00:21,204] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:21.204774+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=d6a33571-bd39-449e-8dda-56a615800f7c details={'removed_user_id': 2}
+[2026-11-14 22:00:21,214] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:30:21.213835+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=d6a33571-bd39-449e-8dda-56a615800f7c details={'reason': 'User is not a member of this workspace'}
+ok
+test_removed_member_other_workspace_still_listed (accounts.tests_issue22_access_revocation.MemberAccessBeforeAndAfterRemovalTests.test_removed_member_other_workspace_still_listed)
+The workspace list for the removed member still includes the other ... [2026-11-14 22:00:23,076] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:23.076704+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=d913d44e-3e74-4326-ba02-b296d924c5e4 details={'removed_user_id': 2}
+ok
+test_removed_member_retains_access_to_other_workspace (accounts.tests_issue22_access_revocation.MemberAccessBeforeAndAfterRemovalTests.test_removed_member_retains_access_to_other_workspace)
+After being removed from workspace A the user must still have access ... [2026-11-14 22:00:24,806] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:24.806105+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=a27c64cd-e091-43b9-b793-89345fc0c2a9 details={'removed_user_id': 2}
+ok
+test_admin_cannot_remove_owner (accounts.tests_issue22_access_revocation.RoleBasedAccessControlIntegrity.test_admin_cannot_remove_owner)
+Admin cannot remove the workspace Owner (unchanged RBAC rule). ... ok
+test_member_cannot_remove_another_member (accounts.tests_issue22_access_revocation.RoleBasedAccessControlIntegrity.test_member_cannot_remove_another_member)
+A plain Member has no authority to remove other members. ... [2026-11-14 22:00:31,926] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:30:31.926333+00:00 user_id=3 attempted_identifier=None ip=127.0.0.1 workspace_id=34109ee9-3c5a-48f6-a6cb-2fac6d4a2b84 details={'reason': 'Unauthorized attempt to remove member'}
+ok
+test_viewer_cannot_remove_member (accounts.tests_issue22_access_revocation.RoleBasedAccessControlIntegrity.test_viewer_cannot_remove_member)
+A Viewer has no authority to remove members. ... [2026-11-14 22:00:35,080] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:30:35.080783+00:00 user_id=4 attempted_identifier=None ip=127.0.0.1 workspace_id=3b0b83b3-a8cd-4fb3-b3e3-93c714247b53 details={'reason': 'Unauthorized attempt to remove member'}
+ok
+test_viewer_still_cannot_write_after_another_removal (accounts.tests_issue22_access_revocation.RoleBasedAccessControlIntegrity.test_viewer_still_cannot_write_after_another_removal)
+Viewer write restrictions remain even after another member is removed. ... [2026-11-14 22:00:38,093] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:30:38.093200+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=d680dc94-04a1-4f6a-8e8a-505d05c118ba details={'removed_user_id': 3}
+[2026-11-14 22:00:38,108] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:30:38.108887+00:00 user_id=4 attempted_identifier=None ip=127.0.0.1 workspace_id=d680dc94-04a1-4f6a-8e8a-505d05c118ba details={'reason': 'Insufficient role (Viewer) for editing workspace'}
+ok
+test_nonexistent_member_removal_returns_404 (accounts.tests_issue22_access_revocation.UnauthorizedRemovalAttemptTests.test_nonexistent_member_removal_returns_404)
+Trying to remove a user who is not a member returns 404. ... ok
+test_outsider_cannot_remove_member (accounts.tests_issue22_access_revocation.UnauthorizedRemovalAttemptTests.test_outsider_cannot_remove_member)
+A user not in the workspace cannot remove members. ... [2026-11-14 22:00:42,786] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:30:42.785205+00:00 user_id=3 attempted_identifier=None ip=127.0.0.1 workspace_id=cd66769c-52de-41d5-9e79-47d09cae63a7 details={'reason': 'User is not a member of this workspace'}
+ok
+test_unauthenticated_request_cannot_remove_member (accounts.tests_issue22_access_revocation.UnauthorizedRemovalAttemptTests.test_unauthenticated_request_cannot_remove_member)
+Unauthenticated requests are rejected. ... ok
+test_existing_auth_pipeline_remains_fully_functional (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_existing_auth_pipeline_remains_fully_functional)
+Verify registration, login, me, and token refresh all continue working seamlessly. ... ok
+test_expired_token_generates_security_event (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_expired_token_generates_security_event)
+Requests with an expired JWT access token generate TOKEN_INVALID_OR_EXPIRED. ... [2026-11-14 22:00:47,753] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:30:47.752236+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_failed_login_wrong_password_generates_security_event (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_failed_login_wrong_password_generates_security_event)
+Failed login with incorrect password generates a LOGIN_FAILURE event. ... [2026-11-14 22:00:49,191] WARNING security: SECURITY_EVENT: event_type=LOGIN_FAILURE timestamp=2026-11-14T16:30:49.191517+00:00 user_id=None attempted_identifier=sec_user@example.com ip=127.0.0.1 workspace_id=None details={'reason': 'Invalid credentials or user does not exist'}
+ok
+test_invalid_refresh_token_generates_security_event (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_invalid_refresh_token_generates_security_event)
+Invalid token submitted to /token/refresh/ generates TOKEN_INVALID_OR_EXPIRED. ... [2026-11-14 22:00:50,047] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:30:50.047807+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Invalid or expired refresh token'}
+ok
+test_invalid_token_generates_security_event (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_invalid_token_generates_security_event)
+Requests with invalid/tampered JWT tokens generate TOKEN_INVALID_OR_EXPIRED. ... [2026-11-14 22:00:51,012] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:30:51.012385+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_jwt_tokens_and_auth_headers_never_recorded (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_jwt_tokens_and_auth_headers_never_recorded)
+Tokens and Authorization header contents must NEVER appear in logs. ... [2026-11-14 22:00:51,900] WARNING security: SECURITY_EVENT: event_type=TOKEN_INVALID_OR_EXPIRED timestamp=2026-11-14T16:30:51.900190+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Authentication failed'}
+ok
+test_logging_failure_does_not_break_login (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_logging_failure_does_not_break_login)
+A failure within the logging system must not prevent successful authentication. ... ok
+test_logout_generates_security_event (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_logout_generates_security_event)
+Calling the logout endpoint records a LOGOUT security event. ... [2026-11-14 22:00:54,273] INFO security: SECURITY_EVENT: event_type=LOGOUT timestamp=2026-11-14T16:30:54.273349+00:00 user_id=1 attempted_identifier=None ip=127.0.0.1 workspace_id=None details={}
+ok
+test_malformed_login_does_not_log_unvalidated_identifier (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_malformed_login_does_not_log_unvalidated_identifier)
+Unvalidated login fields can contain secrets and must not enter logs. ... [2026-11-14 22:00:55,181] WARNING security: SECURITY_EVENT: event_type=LOGIN_FAILURE timestamp=2026-11-14T16:30:55.181918+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Malformed login request'}
+ok
+test_malformed_login_payload_generates_security_event (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_malformed_login_payload_generates_security_event)
+Malformed login request (e.g. invalid email structure) generates LOGIN_FAILURE. ... [2026-11-14 22:00:56,114] WARNING security: SECURITY_EVENT: event_type=LOGIN_FAILURE timestamp=2026-11-14T16:30:56.114868+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Malformed login request'}
+ok
+test_no_duplicate_security_events_for_same_request (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_no_duplicate_security_events_for_same_request)
+A single login request must not emit duplicate events for the same action. ... [2026-11-14 22:00:57,888] INFO security: SECURITY_EVENT: event_type=LOGIN_SUCCESS timestamp=2026-11-14T16:30:57.888388+00:00 user_id=1 attempted_identifier=sec_user@example.com ip=127.0.0.1 workspace_id=None details={}
+ok
+test_nonexistent_user_login_attempt_recorded_safely (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_nonexistent_user_login_attempt_recorded_safely)
+Login attempt for a non-existent email is logged safely with user_id=None. ... [2026-11-14 22:00:59,602] WARNING security: SECURITY_EVENT: event_type=LOGIN_FAILURE timestamp=2026-11-14T16:30:59.601897+00:00 user_id=None attempted_identifier=nonexistent_ghost@example.com ip=127.0.0.1 workspace_id=None details={'reason': 'Invalid credentials or user does not exist'}
+ok
+test_plaintext_passwords_never_recorded (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_plaintext_passwords_never_recorded)
+Plaintext passwords must NEVER appear anywhere in security event logs. ... [2026-11-14 22:01:01,255] WARNING security: SECURITY_EVENT: event_type=LOGIN_FAILURE timestamp=2026-11-14T16:31:01.255205+00:00 user_id=None attempted_identifier=sec_user@example.com ip=127.0.0.1 workspace_id=None details={'reason': 'Invalid credentials or user does not exist'}
+[2026-11-14 22:01:02,815] INFO security: SECURITY_EVENT: event_type=LOGIN_SUCCESS timestamp=2026-11-14T16:31:02.815881+00:00 user_id=2 attempted_identifier=temp_pass_test@example.com ip=127.0.0.1 workspace_id=None details={}
+ok
+test_successful_login_generates_security_event (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_successful_login_generates_security_event)
+Successful login records a LOGIN_SUCCESS security event with user metadata. ... [2026-11-14 22:01:04,371] INFO security: SECURITY_EVENT: event_type=LOGIN_SUCCESS timestamp=2026-11-14T16:31:04.371165+00:00 user_id=1 attempted_identifier=sec_user@example.com ip=127.0.0.1 workspace_id=None details={}
+ok
+test_unauthorized_workspace_access_generates_security_event (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_unauthorized_workspace_access_generates_security_event)
+Unauthorized attempt to access another workspace logs UNAUTHORIZED_ACCESS. ... [2026-11-14 22:01:06,920] WARNING security: SECURITY_EVENT: event_type=UNAUTHORIZED_ACCESS timestamp=2026-11-14T16:31:06.920538+00:00 user_id=3 attempted_identifier=None ip=127.0.0.1 workspace_id=2bddab22-04ea-4eb4-aadf-4a2a70c76f36 details={'reason': 'User is not a member of this workspace'}
+ok
+test_workspace_member_removal_generates_security_event (accounts.tests_issue23_security_logging.SecurityEventLoggingTests.test_workspace_member_removal_generates_security_event)
+Member removal by workspace owner generates WORKSPACE_MEMBER_REMOVED. ... [2026-11-14 22:01:09,511] INFO security: SECURITY_EVENT: event_type=WORKSPACE_MEMBER_REMOVED timestamp=2026-11-14T16:31:09.511280+00:00 user_id=2 attempted_identifier=None ip=127.0.0.1 workspace_id=dbcf0d91-97a9-44d4-9264-877c6783d4bd details={'removed_user_id': 3}
+ok
+test_empty_password_is_rejected (accounts.tests_issue9_password_hashing.LoginAuthenticationSecurityTests.test_empty_password_is_rejected)
+Login with an empty password must be rejected. ... [2026-11-14 22:01:10,444] WARNING security: SECURITY_EVENT: event_type=LOGIN_FAILURE timestamp=2026-11-14T16:31:10.444144+00:00 user_id=None attempted_identifier=None ip=127.0.0.1 workspace_id=None details={'reason': 'Malformed login request'}
+ok
+test_registration_followed_by_login_works (accounts.tests_issue9_password_hashing.LoginAuthenticationSecurityTests.test_registration_followed_by_login_works)
+A freshly registered user must be able to log in immediately. ... [2026-11-14 22:01:12,526] INFO security: SECURITY_EVENT: event_type=LOGIN_SUCCESS timestamp=2026-11-14T16:31:12.526293+00:00 user_id=2 attempted_identifier=fresh_user@example.com ip=127.0.0.1 workspace_id=None details={}
+ok
+test_valid_credentials_return_tokens (accounts.tests_issue9_password_hashing.LoginAuthenticationSecurityTests.test_valid_credentials_return_tokens)
+Login with correct email and password must return access and refresh tokens. ... [2026-11-14 22:01:13,698] INFO security: SECURITY_EVENT: event_type=LOGIN_SUCCESS timestamp=2026-11-14T16:31:13.698330+00:00 user_id=1 attempted_identifier=auth_user@example.com ip=127.0.0.1 workspace_id=None details={}
+ok
+test_wrong_email_is_rejected (accounts.tests_issue9_password_hashing.LoginAuthenticationSecurityTests.test_wrong_email_is_rejected)
+Login with a non-existent email must be rejected with 400. ... [2026-11-14 22:01:14,834] WARNING security: SECURITY_EVENT: event_type=LOGIN_FAILURE timestamp=2026-11-14T16:31:14.834438+00:00 user_id=None attempted_identifier=nobody@example.com ip=127.0.0.1 workspace_id=None details={'reason': 'Invalid credentials or user does not exist'}
+ok
+test_wrong_password_is_rejected (accounts.tests_issue9_password_hashing.LoginAuthenticationSecurityTests.test_wrong_password_is_rejected)
+Login with a wrong password must be rejected with 400. ... [2026-11-14 22:01:15,996] WARNING security: SECURITY_EVENT: event_type=LOGIN_FAILURE timestamp=2026-11-14T16:31:15.996375+00:00 user_id=None attempted_identifier=auth_user@example.com ip=127.0.0.1 workspace_id=None details={'reason': 'Invalid credentials or user does not exist'}
+ok
+test_check_password_rejects_wrong_password (accounts.tests_issue9_password_hashing.PasswordHashingStorageTests.test_check_password_rejects_wrong_password)
+user.check_password must return False for an incorrect password. ... ok
+test_check_password_validates_correct_password (accounts.tests_issue9_password_hashing.PasswordHashingStorageTests.test_check_password_validates_correct_password)
+user.check_password must return True for the original password. ... ok
+test_registration_stores_hashed_password_not_plaintext (accounts.tests_issue9_password_hashing.PasswordHashingStorageTests.test_registration_stores_hashed_password_not_plaintext)
+Password stored in DB must not equal the original plaintext. ... ok
+test_stored_password_is_usable (accounts.tests_issue9_password_hashing.PasswordHashingStorageTests.test_stored_password_is_usable)
+is_password_usable must return True for a hashed password. ... ok
+test_stored_password_uses_django_supported_hasher (accounts.tests_issue9_password_hashing.PasswordHashingStorageTests.test_stored_password_uses_django_supported_hasher)
+Django's identify_hasher must recognise the stored password hash. ... ok
+test_two_users_with_same_password_have_different_hashes (accounts.tests_issue9_password_hashing.PasswordHashingStorageTests.test_two_users_with_same_password_have_different_hashes)
+Different accounts with the same plaintext must have distinct stored hashes. ... ok
+test_login_response_does_not_contain_password_field (accounts.tests_issue9_password_hashing.PasswordNotExposedInAPITests.test_login_response_does_not_contain_password_field)
+The login endpoint response must not include a 'password' field. ... [2026-11-14 22:01:23,871] INFO security: SECURITY_EVENT: event_type=LOGIN_SUCCESS timestamp=2026-11-14T16:31:23.871529+00:00 user_id=1 attempted_identifier=login_nopw@example.com ip=127.0.0.1 workspace_id=None details={}
+ok
+test_me_endpoint_does_not_expose_password (accounts.tests_issue9_password_hashing.PasswordNotExposedInAPITests.test_me_endpoint_does_not_expose_password)
+The /me endpoint must not include the password or hash. ... ok
+test_registration_response_does_not_contain_password_field (accounts.tests_issue9_password_hashing.PasswordNotExposedInAPITests.test_registration_response_does_not_contain_password_field)
+The register endpoint response must not include a 'password' field. ... ok
+test_registration_response_does_not_leak_password_hash (accounts.tests_issue9_password_hashing.PasswordNotExposedInAPITests.test_registration_response_does_not_leak_password_hash)
+The register response body must not contain the password hash string. ... ok
+test_activity_is_member_scoped_filterable_and_paginated (collaboration.test_activity_notifications.ActivityNotificationApiTests.test_activity_is_member_scoped_filterable_and_paginated) ... ok
+test_assignment_activity_and_notification_skip_actor (collaboration.test_activity_notifications.ActivityNotificationApiTests.test_assignment_activity_and_notification_skip_actor) ... ok
+test_comment_notifications_and_private_read_marking (collaboration.test_activity_notifications.ActivityNotificationApiTests.test_comment_notifications_and_private_read_marking) ... ok
+test_mentions_resolve_to_distinct_members_and_html_is_removed (collaboration.test_comments.TaskCommentApiTests.test_mentions_resolve_to_distinct_members_and_html_is_removed) ... ok
+test_nonmember_mentions_are_rejected_and_cannot_read_or_post (collaboration.test_comments.TaskCommentApiTests.test_nonmember_mentions_are_rejected_and_cannot_read_or_post) ... ok
+test_only_author_or_workspace_admin_can_edit_or_delete (collaboration.test_comments.TaskCommentApiTests.test_only_author_or_workspace_admin_can_edit_or_delete) ... ok
+test_control_characters_and_edge_whitespace_are_removed (common.test_sanitization.SanitizeTextTests.test_control_characters_and_edge_whitespace_are_removed) ... ok
+test_escaped_markup_cannot_survive_as_live_markup (common.test_sanitization.SanitizeTextTests.test_escaped_markup_cannot_survive_as_live_markup) ... ok
+test_markup_is_removed (common.test_sanitization.SanitizeTextTests.test_markup_is_removed) ... ok
+test_plain_text_is_not_entity_escaped (common.test_sanitization.SanitizeTextTests.test_plain_text_is_not_entity_escaped) ... ok
+test_free_text_length_is_bounded (common.test_sanitization.SanitizedEndpointTests.test_free_text_length_is_bounded) ... ok
+test_input_that_is_only_markup_is_rejected_not_stored_blank (common.test_sanitization.SanitizedEndpointTests.test_input_that_is_only_markup_is_rejected_not_stored_blank) ... ok
+test_nul_byte_in_free_text_is_rejected (common.test_sanitization.SanitizedEndpointTests.test_nul_byte_in_free_text_is_rejected) ... ok
+test_passwords_are_never_sanitized (common.test_sanitization.SanitizedEndpointTests.test_passwords_are_never_sanitized) ... ok
+test_project_name_and_description_are_sanitized (common.test_sanitization.SanitizedEndpointTests.test_project_name_and_description_are_sanitized) ... ok
+test_task_title_and_description_are_sanitized (common.test_sanitization.SanitizedEndpointTests.test_task_title_and_description_are_sanitized) ... ok
+test_workspace_name_and_description_are_sanitized (common.test_sanitization.SanitizedEndpointTests.test_workspace_name_and_description_are_sanitized) ... ok
+test_aggregates_counts_distribution_and_activity_timeseries (projects.test_analytics.ProjectAnalyticsTests.test_aggregates_counts_distribution_and_activity_timeseries) ... ok
+test_non_member_cannot_read_analytics_and_date_range_is_validated (projects.test_analytics.ProjectAnalyticsTests.test_non_member_cannot_read_analytics_and_date_range_is_validated) ... ok
+test_deleting_workspace_cascades_to_projects (projects.tests.ProjectCreationTests.test_deleting_workspace_cascades_to_projects) ... ok
+test_duplicate_project_name_in_same_workspace_is_rejected (projects.tests.ProjectCreationTests.test_duplicate_project_name_in_same_workspace_is_rejected) ... ok
+test_empty_project_name_is_rejected (projects.tests.ProjectCreationTests.test_empty_project_name_is_rejected) ... ok
+test_member_can_create_project (projects.tests.ProjectCreationTests.test_member_can_create_project) ... ok
+test_member_can_update_project (projects.tests.ProjectCreationTests.test_member_can_update_project) ... ok
+test_members_can_list_only_their_workspace_projects (projects.tests.ProjectCreationTests.test_members_can_list_only_their_workspace_projects) ... ok
+test_non_member_cannot_create_or_list_projects (projects.tests.ProjectCreationTests.test_non_member_cannot_create_or_list_projects) ... ok
+test_only_owner_or_admin_can_delete_project (projects.tests.ProjectCreationTests.test_only_owner_or_admin_can_delete_project) ... ok
+test_owner_and_admin_can_create_project (projects.tests.ProjectCreationTests.test_owner_and_admin_can_create_project) ... ok
+test_project_from_another_workspace_is_not_reachable (projects.tests.ProjectCreationTests.test_project_from_another_workspace_is_not_reachable) ... ok
+test_project_name_is_trimmed (projects.tests.ProjectCreationTests.test_project_name_is_trimmed) ... ok
+test_same_project_name_allowed_in_different_workspace (projects.tests.ProjectCreationTests.test_same_project_name_allowed_in_different_workspace) ... ok
+test_unauthenticated_user_cannot_create_project (projects.tests.ProjectCreationTests.test_unauthenticated_user_cannot_create_project) ... ok
+test_viewer_can_retrieve_but_not_edit_project (projects.tests.ProjectCreationTests.test_viewer_can_retrieve_but_not_edit_project) ... ok
+test_viewer_cannot_create_project (projects.tests.ProjectCreationTests.test_viewer_cannot_create_project) ... ok
+test_workspace_cannot_be_overridden_by_client (projects.tests.ProjectCreationTests.test_workspace_cannot_be_overridden_by_client) ... ok
+test_blocked_task_can_still_move_to_other_columns (projects.tests.TaskDependencyTests.test_blocked_task_can_still_move_to_other_columns) ... ok
+test_deleting_a_task_removes_its_dependency_edges (projects.tests.TaskDependencyTests.test_deleting_a_task_removes_its_dependency_edges) ... ok
+test_dependency_can_be_listed_and_deleted (projects.tests.TaskDependencyTests.test_dependency_can_be_listed_and_deleted) ... ok
+test_dependency_must_be_within_the_same_project (projects.tests.TaskDependencyTests.test_dependency_must_be_within_the_same_project) ... ok
+test_diamond_dependency_is_allowed (projects.tests.TaskDependencyTests.test_diamond_dependency_is_allowed) ... ok
+test_direct_two_task_cycle_is_rejected (projects.tests.TaskDependencyTests.test_direct_two_task_cycle_is_rejected) ... ok
+test_duplicate_dependency_is_rejected (projects.tests.TaskDependencyTests.test_duplicate_dependency_is_rejected) ... ok
+test_indirect_three_task_cycle_is_rejected (projects.tests.TaskDependencyTests.test_indirect_three_task_cycle_is_rejected) ... ok
+test_long_chain_cycle_is_rejected (projects.tests.TaskDependencyTests.test_long_chain_cycle_is_rejected) ... ok
+test_member_can_define_a_dependency_between_two_tasks (projects.tests.TaskDependencyTests.test_member_can_define_a_dependency_between_two_tasks) ... ok
+test_non_member_cannot_define_or_list_dependencies (projects.tests.TaskDependencyTests.test_non_member_cannot_define_or_list_dependencies) ... ok
+test_self_dependency_is_blocked_at_database_level (projects.tests.TaskDependencyTests.test_self_dependency_is_blocked_at_database_level) ... ok
+test_self_dependency_is_rejected (projects.tests.TaskDependencyTests.test_self_dependency_is_rejected) ... ok
+test_shared_prerequisite_is_not_mistaken_for_a_cycle (projects.tests.TaskDependencyTests.test_shared_prerequisite_is_not_mistaken_for_a_cycle) ... ok
+test_task_can_be_marked_done_once_dependencies_are_done (projects.tests.TaskDependencyTests.test_task_can_be_marked_done_once_dependencies_are_done) ... ok
+test_task_cannot_be_marked_done_while_a_dependency_is_incomplete (projects.tests.TaskDependencyTests.test_task_cannot_be_marked_done_while_a_dependency_is_incomplete) ... ok
+test_task_exposes_blocked_state_and_prerequisites (projects.tests.TaskDependencyTests.test_task_exposes_blocked_state_and_prerequisites) ... ok
+test_unauthenticated_user_cannot_define_a_dependency (projects.tests.TaskDependencyTests.test_unauthenticated_user_cannot_define_a_dependency) ... ok
+test_unblocked_once_prerequisite_is_done (projects.tests.TaskDependencyTests.test_unblocked_once_prerequisite_is_done) ... ok
+test_viewer_cannot_define_or_delete_a_dependency (projects.tests.TaskDependencyTests.test_viewer_cannot_define_or_delete_a_dependency) ... ok
+test_board_opens_without_a_separate_task_list_screen (projects.tests.TaskFlowScreenCountTests.test_board_opens_without_a_separate_task_list_screen)
+One request returns every card the board draws, so the board itself is ... ok
+test_creation_and_assignment_happen_in_one_request (projects.tests.TaskFlowScreenCountTests.test_creation_and_assignment_happen_in_one_request)
+The task is assigned as it is created, so assignment never costs the ... ok
+test_new_user_creates_and_assigns_a_task_within_the_screen_budget (projects.tests.TaskFlowScreenCountTests.test_new_user_creates_and_assigns_a_task_within_the_screen_budget) ... ok
+test_all_srs_statuses_are_accepted (projects.tests.TaskTests.test_all_srs_statuses_are_accepted) ... ok
+test_assignee_can_be_cleared (projects.tests.TaskTests.test_assignee_can_be_cleared) ... ok
+test_assignee_email_is_null_rather_than_missing_when_unassigned (projects.tests.TaskTests.test_assignee_email_is_null_rather_than_missing_when_unassigned)
+The field must always be present so clients see one response shape. ... ok
+test_deleting_parent_deletes_its_subtasks (projects.tests.TaskTests.test_deleting_parent_deletes_its_subtasks) ... ok
+test_deleting_project_cascades_to_tasks (projects.tests.TaskTests.test_deleting_project_cascades_to_tasks) ... ok
+test_invalid_status_is_rejected (projects.tests.TaskTests.test_invalid_status_is_rejected) ... ok
+test_list_returns_only_tasks_of_the_requested_project (projects.tests.TaskTests.test_list_returns_only_tasks_of_the_requested_project) ... ok
+test_member_can_create_task_with_default_status (projects.tests.TaskTests.test_member_can_create_task_with_default_status) ... ok
+test_member_can_update_task_status_and_title (projects.tests.TaskTests.test_member_can_update_task_status_and_title) ... ok
+test_non_member_cannot_create_or_list_tasks (projects.tests.TaskTests.test_non_member_cannot_create_or_list_tasks) ... ok
+test_non_member_cannot_read_or_edit_task_from_another_workspace (projects.tests.TaskTests.test_non_member_cannot_read_or_edit_task_from_another_workspace) ... ok
+test_parent_must_belong_to_the_same_project (projects.tests.TaskTests.test_parent_must_belong_to_the_same_project) ... ok
+test_parent_task_exposes_its_subtasks (projects.tests.TaskTests.test_parent_task_exposes_its_subtasks) ... ok
+test_project_cannot_be_overridden_by_client (projects.tests.TaskTests.test_project_cannot_be_overridden_by_client) ... ok
+test_subtask_can_be_created_under_a_task (projects.tests.TaskTests.test_subtask_can_be_created_under_a_task) ... ok
+test_subtasks_cannot_be_nested_more_than_one_level (projects.tests.TaskTests.test_subtasks_cannot_be_nested_more_than_one_level) ... ok
+test_task_can_be_assigned_to_a_workspace_member (projects.tests.TaskTests.test_task_can_be_assigned_to_a_workspace_member) ... ok
+test_task_cannot_be_assigned_to_a_non_member (projects.tests.TaskTests.test_task_cannot_be_assigned_to_a_non_member) ... ok
+test_task_cannot_become_its_own_parent (projects.tests.TaskTests.test_task_cannot_become_its_own_parent) ... ok
+test_task_title_is_required_and_trimmed (projects.tests.TaskTests.test_task_title_is_required_and_trimmed) ... ok
+test_task_with_subtasks_cannot_become_a_subtask (projects.tests.TaskTests.test_task_with_subtasks_cannot_become_a_subtask) ... ok
+test_unauthenticated_user_cannot_create_task (projects.tests.TaskTests.test_unauthenticated_user_cannot_create_task) ... ok
+test_viewer_can_read_but_not_edit_or_delete_task (projects.tests.TaskTests.test_viewer_can_read_but_not_edit_or_delete_task) ... ok
+test_viewer_cannot_create_task (projects.tests.TaskTests.test_viewer_cannot_create_task) ... ok
+test_auth_and_filter (sprints.test_backlog.BacklogTests.test_auth_and_filter) ... ok
+test_authenticated_api_flow_matches_planning_contract (sprints.test_backlog.BacklogTests.test_authenticated_api_flow_matches_planning_contract) ... [2026-11-14 22:05:28,933] INFO security: SECURITY_EVENT: event_type=LOGIN_SUCCESS timestamp=2026-11-14T16:35:28.933899+00:00 user_id=1 attempted_identifier=owner@test.test ip=127.0.0.1 workspace_id=None details={}
+ok
+test_create_persists_and_shares_task_board (sprints.test_backlog.BacklogTests.test_create_persists_and_shares_task_board) ... ok
+test_estimate_edit_and_clear (sprints.test_backlog.BacklogTests.test_estimate_edit_and_clear) ... ok
+test_optional_zero_and_invalid_estimates (sprints.test_backlog.BacklogTests.test_optional_zero_and_invalid_estimates) ... ok
+test_roles_and_immediate_removal (sprints.test_backlog.BacklogTests.test_roles_and_immediate_removal) ... [2026-11-14 22:05:32,749] WARNING django.security: Sprint access denied: user=3 path=/api/v1/projects/a2fd14db-4fbd-4618-af0d-07140e5b3282/backlog-items/
+[2026-11-14 22:05:32,793] WARNING django.security: Sprint access denied: user=4 path=/api/v1/projects/a2fd14db-4fbd-4618-af0d-07140e5b3282/backlog-items/
+[2026-11-14 22:05:32,801] WARNING django.security: Sprint access denied: user=2 path=/api/v1/projects/a2fd14db-4fbd-4618-af0d-07140e5b3282/backlog-items/
+ok
+test_workspace_create_returns_owner_role (sprints.test_backlog.BacklogTests.test_workspace_create_returns_owner_role) ... ok
+test_workspace_list_exposes_actual_roles (sprints.test_backlog.BacklogTests.test_workspace_list_exposes_actual_roles) ... ok
+test_cascading_parent_deletion_updates_child_sprint (sprints.test_reporting.ReportingTests.test_cascading_parent_deletion_updates_child_sprint) ... ok
+test_completion_freezes_velocity_and_burndown (sprints.test_reporting.ReportingTests.test_completion_freezes_velocity_and_burndown) ... ok
+test_delete_updates_active_snapshot (sprints.test_reporting.ReportingTests.test_delete_updates_active_snapshot) ... ok
+test_legacy_history_is_unknown_before_first_observation (sprints.test_reporting.ReportingTests.test_legacy_history_is_unknown_before_first_observation) ... ok
+test_planned_empty_and_unknown_estimates (sprints.test_reporting.ReportingTests.test_planned_empty_and_unknown_estimates) ... ok
+test_prior_days_preserved_and_inactive_days_carried_forward (sprints.test_reporting.ReportingTests.test_prior_days_preserved_and_inactive_days_carried_forward) ... ok
+test_real_jwt_chart_and_complete_flow (sprints.test_reporting.ReportingTests.test_real_jwt_chart_and_complete_flow) ... [2026-11-14 22:05:37,009] INFO security: SECURITY_EVENT: event_type=LOGIN_SUCCESS timestamp=2026-11-14T16:35:37.009879+00:00 user_id=1 attempted_identifier=charts-owner@test.test ip=127.0.0.1 workspace_id=None details={}
+ok
+test_start_status_estimate_and_reopen_recalculate (sprints.test_reporting.ReportingTests.test_start_status_estimate_and_reopen_recalculate) ... ok
+test_velocity_average_and_project_isolation (sprints.test_reporting.ReportingTests.test_velocity_average_and_project_isolation) ... ok
+test_viewer_readonly_and_membership_enforced (sprints.test_reporting.ReportingTests.test_viewer_readonly_and_membership_enforced) ... [2026-11-14 22:05:37,635] WARNING django.security: Sprint access denied: user=3 path=/api/v1/sprints/a5d7daf6-6720-4230-94f2-00920d825195/complete/
+[2026-11-14 22:05:37,639] WARNING django.security: Sprint access denied: user=4 path=/api/v1/sprints/a5d7daf6-6720-4230-94f2-00920d825195/burndown/
+[2026-11-14 22:05:37,646] WARNING django.security: Sprint access denied: user=4 path=/api/v1/projects/36ba100c-1f6a-4503-b6f4-ca85ab2158a3/velocity/
+[2026-11-14 22:05:37,655] WARNING django.security: Sprint access denied: user=4 path=/api/v1/sprints/a5d7daf6-6720-4230-94f2-00920d825195/complete/
+[2026-11-14 22:05:37,664] WARNING django.security: Sprint access denied: user=2 path=/api/v1/sprints/a5d7daf6-6720-4230-94f2-00920d825195/burndown/
+[2026-11-14 22:05:37,670] WARNING django.security: Sprint access denied: user=2 path=/api/v1/projects/36ba100c-1f6a-4503-b6f4-ca85ab2158a3/velocity/
+[2026-11-14 22:05:37,677] WARNING django.security: Sprint access denied: user=2 path=/api/v1/sprints/a5d7daf6-6720-4230-94f2-00920d825195/complete/
+ok
+test_active_sprint_guards_and_readonly_relation (sprints.test_sprints.SprintTests.test_active_sprint_guards_and_readonly_relation) ... ok
+test_attach_remove_and_empty_start (sprints.test_sprints.SprintTests.test_attach_remove_and_empty_start) ... ok
+test_dates_name_and_missing_fields (sprints.test_sprints.SprintTests.test_dates_name_and_missing_fields) ... ok
+test_duplicate_and_non_backlog_rejected (sprints.test_sprints.SprintTests.test_duplicate_and_non_backlog_rejected) ... ok
+test_empty_and_duplicate_assignment_batches_are_rejected (sprints.test_sprints.SprintTests.test_empty_and_duplicate_assignment_batches_are_rejected) ... ok
+test_invalid_batch_rolls_back_creation (sprints.test_sprints.SprintTests.test_invalid_batch_rolls_back_creation) ... ok
+test_other_workspace_items_cannot_be_assigned (sprints.test_sprints.SprintTests.test_other_workspace_items_cannot_be_assigned) ... [2026-11-14 22:05:38,073] WARNING django.security: Sprint access denied: user=2 path=/api/v1/sprints/
+ok
+test_real_login_workspace_role_and_sprint_flow (sprints.test_sprints.SprintTests.test_real_login_workspace_role_and_sprint_flow) ... [2026-11-14 22:05:40,064] INFO security: SECURITY_EVENT: event_type=LOGIN_SUCCESS timestamp=2026-11-14T16:35:40.064478+00:00 user_id=2 attempted_identifier=member@test.test ip=127.0.0.1 workspace_id=None details={}
+ok
+test_tc07_create_assign_total_and_board (sprints.test_sprints.SprintTests.test_tc07_create_assign_total_and_board) ... ok
+test_unestimated_total_and_existing_batch_atomicity (sprints.test_sprints.SprintTests.test_unestimated_total_and_existing_batch_atomicity) ... ok
+test_viewer_outsider_removed_and_unauthenticated (sprints.test_sprints.SprintTests.test_viewer_outsider_removed_and_unauthenticated) ... [2026-11-14 22:05:40,449] WARNING django.security: Sprint access denied: user=3 path=/api/v1/sprints/
+[2026-11-14 22:05:40,457] WARNING django.security: Sprint access denied: user=3 path=/api/v1/sprints/bd5a199d-2eda-49ff-b84c-afe385dd6cc0/items/
+[2026-11-14 22:05:40,465] WARNING django.security: Sprint access denied: user=3 path=/api/v1/sprints/bd5a199d-2eda-49ff-b84c-afe385dd6cc0/items/368397f7-0d72-4f8d-a4de-8565ce00c147/
+[2026-11-14 22:05:40,472] WARNING django.security: Sprint access denied: user=3 path=/api/v1/sprints/bd5a199d-2eda-49ff-b84c-afe385dd6cc0/start/
+[2026-11-14 22:05:40,480] WARNING django.security: Sprint access denied: user=4 path=/api/v1/projects/778ea9f6-cf6c-4139-9ac0-80072c7ad8e3/sprints/
+[2026-11-14 22:05:40,488] WARNING django.security: Sprint access denied: user=4 path=/api/v1/sprints/bd5a199d-2eda-49ff-b84c-afe385dd6cc0/start/
+[2026-11-14 22:05:40,497] WARNING django.security: Sprint access denied: user=2 path=/api/v1/projects/778ea9f6-cf6c-4139-9ac0-80072c7ad8e3/sprints/
+[2026-11-14 22:05:40,504] WARNING django.security: Sprint access denied: user=2 path=/api/v1/sprints/bd5a199d-2eda-49ff-b84c-afe385dd6cc0/start/
+ok
+test_assignee_records_time_and_total_persists (sprints.test_time_logging.TimeLoggingTests.test_assignee_records_time_and_total_persists) ... ok
+test_database_rejects_zero_minutes (sprints.test_time_logging.TimeLoggingTests.test_database_rejects_zero_minutes) ... ok
+test_identity_task_and_timestamps_cannot_be_spoofed (sprints.test_time_logging.TimeLoggingTests.test_identity_task_and_timestamps_cannot_be_spoofed) ... ok
+test_invalid_minutes_and_notes_do_not_create_entries (sprints.test_time_logging.TimeLoggingTests.test_invalid_minutes_and_notes_do_not_create_entries) ... ok
+test_missing_task_and_unsupported_mutations (sprints.test_time_logging.TimeLoggingTests.test_missing_task_and_unsupported_mutations) ... ok
+test_outsider_removed_member_and_anonymous_denied (sprints.test_time_logging.TimeLoggingTests.test_outsider_removed_member_and_anonymous_denied) ... [2026-11-14 22:05:50,472] WARNING django.security: Sprint access denied: user=6 path=/api/v1/tasks/891db553-116d-4c5f-b0fc-4f203a2172a1/time-entries/
+[2026-11-14 22:05:50,482] WARNING django.security: Sprint access denied: user=6 path=/api/v1/tasks/891db553-116d-4c5f-b0fc-4f203a2172a1/time-entries/
+[2026-11-14 22:05:50,491] WARNING django.security: Sprint access denied: user=2 path=/api/v1/tasks/891db553-116d-4c5f-b0fc-4f203a2172a1/time-entries/
+[2026-11-14 22:05:50,498] WARNING django.security: Sprint access denied: user=2 path=/api/v1/tasks/891db553-116d-4c5f-b0fc-4f203a2172a1/time-entries/
+ok
+test_owner_can_log_unassigned_and_other_users_tasks (sprints.test_time_logging.TimeLoggingTests.test_owner_can_log_unassigned_and_other_users_tasks) ... ok
+test_real_jwt_login_and_time_logging_contract (sprints.test_time_logging.TimeLoggingTests.test_real_jwt_login_and_time_logging_contract) ... [2026-11-14 22:05:54,814] INFO security: SECURITY_EVENT: event_type=LOGIN_SUCCESS timestamp=2026-11-14T16:35:54.814374+00:00 user_id=2 attempted_identifier=member15@example.com ip=127.0.0.1 workspace_id=None details={}
+ok
+test_reassignment_revokes_write_and_keeps_history (sprints.test_time_logging.TimeLoggingTests.test_reassignment_revokes_write_and_keeps_history) ... [2026-11-14 22:05:56,552] WARNING django.security: Sprint access denied: user=2 path=/api/v1/tasks/0f38daee-6674-4fa9-b7dc-9b4441623257/time-entries/
+ok
+test_unassigned_member_and_admin_are_readonly (sprints.test_time_logging.TimeLoggingTests.test_unassigned_member_and_admin_are_readonly) ... [2026-11-14 22:05:58,340] WARNING django.security: Sprint access denied: user=3 path=/api/v1/tasks/d3586782-8e6a-40b2-a7fd-12d4b3579c96/time-entries/
+[2026-11-14 22:05:58,359] WARNING django.security: Sprint access denied: user=4 path=/api/v1/tasks/d3586782-8e6a-40b2-a7fd-12d4b3579c96/time-entries/
+ok
+test_viewer_cannot_write_even_if_assigned (sprints.test_time_logging.TimeLoggingTests.test_viewer_cannot_write_even_if_assigned) ... [2026-11-14 22:05:59,582] WARNING django.security: Sprint access denied: user=5 path=/api/v1/tasks/dcc20db8-054c-4d9c-a1af-7ebea854dfae/time-entries/
+ok
+test_private_notification_socket_receives_only_recipient_events (collaboration.test_activity_notifications.NotificationSocketTests.test_private_notification_socket_receives_only_recipient_events) ... ok
+test_comment_creation_is_broadcast_to_project_members (collaboration.test_comments.TaskCommentSocketTests.test_comment_creation_is_broadcast_to_project_members) ... ok
+test_ping_pong_and_reconnect_after_abnormal_disconnect (collaboration.tests.ProjectSocketTests.test_ping_pong_and_reconnect_after_abnormal_disconnect) ... ok
+test_rejects_non_member_connection (collaboration.tests.ProjectSocketTests.test_rejects_non_member_connection) ... ok
+test_rejects_unauthenticated_connection (collaboration.tests.ProjectSocketTests.test_rejects_unauthenticated_connection) ... ok
+test_task_update_is_broadcast_to_project_member (collaboration.tests.ProjectSocketTests.test_task_update_is_broadcast_to_project_member) ... ok
+test_upgrade_seeds_existing_active_sprint_without_rewriting_history (sprints.test_reporting.ReportingMigrationTests.test_upgrade_seeds_existing_active_sprint_without_rewriting_history) ... ok
+
+----------------------------------------------------------------------
+Ran 260 tests in 536.122s
+
+OK
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+ OK
+System check identified no issues (0 silenced).
