@@ -7,3 +7,5 @@
 node_modules/
 dist/
 .coverage
+backend/venv/
+frontend/coverage/

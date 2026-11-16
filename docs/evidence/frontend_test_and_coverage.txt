@@ -1,0 +1,22 @@
+
+> team14-auth-frontend@0.1.0 test
+> jest --runInBand --coverage --watchAll=false
+
+PASS src/Planning.sprints.test.jsx
+PASS src/SprintCharts.test.jsx
+PASS src/TimeLogs.test.jsx
+PASS src/Planning.test.jsx
+------------------|---------|----------|---------|---------|-----------------------
+File              | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s     
+------------------|---------|----------|---------|---------|-----------------------
+All files         |   92.38 |    83.62 |   89.53 |   95.33 |                       
+ Planning.jsx     |   90.21 |    84.61 |      86 |   95.31 | 37,62,108             
+ SprintCharts.jsx |   98.21 |    84.61 |     100 |     100 | 18,21-22,63-77,91,108 
+ TimeLogs.jsx     |   90.32 |    81.48 |   89.47 |      92 | 20,51,60-61           
+------------------|---------|----------|---------|---------|-----------------------
+
+Test Suites: 4 passed, 4 total
+Tests:       29 passed, 29 total
+Snapshots:   0 total
+Time:        5.08 s, estimated 6 s
+Ran all test suites.

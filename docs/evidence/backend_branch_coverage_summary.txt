@@ -1,0 +1,88 @@
+Name                                                                           Stmts   Miss Branch BrPart  Cover   Missing
+--------------------------------------------------------------------------------------------------------------------------
+accounts\__init__.py                                                               0      0      0      0   100%
+accounts\admin.py                                                                 11      0      0      0   100%
+accounts\apps.py                                                                   4      0      0      0   100%
+accounts\authentication.py                                                        11      0      0      0   100%
+accounts\migrations\0001_initial.py                                                7      0      0      0   100%
+accounts\migrations\0002_workspace.py                                              7      0      0      0   100%
+accounts\migrations\0003_workspaceinvitation_workspacemembership.py                7      0      0      0   100%
+accounts\migrations\0004_alter_workspace_description.py                            4      0      0      0   100%
+accounts\migrations\__init__.py                                                    0      0      0      0   100%
+accounts\models.py                                                                78     12     10      2    80%   16, 29-35, 46->48, 51, 68, 108, 143
+accounts\permissions.py                                                           60     33     20      1    40%   12, 31, 34-38, 48, 51-55, 65, 68-72, 84, 87-99
+accounts\security_logging.py                                                      69     12     32     10    78%   47, 53, 55, 57, 69, 73, 75-76, 109, 137->155, 139->145, 143-144, 152
+accounts\serializers.py                                                           91      6     10      3    91%   33-34, 64-72, 109, 124
+accounts\tests.py                                                                314      0      0      0   100%
+accounts\tests_issue9_password_hashing.py                                         94      0      0      0   100%
+accounts\tests_issue10_viewer_readonly.py                                        121      0      0      0   100%
+accounts\tests_issue11_token_validation.py                                       147      0      0      0   100%
+accounts\tests_issue22_access_revocation.py                                      219      0      0      0   100%
+accounts\tests_issue23_security_logging.py                                       194      0     10      0   100%
+accounts\urls.py                                                                   3      0      0      0   100%
+accounts\views.py                                                                223      8     64      6    95%   192, 260-261, 299, 317->321, 336, 458, 464, 476
+collaboration\__init__.py                                                          0      0      0      0   100%
+collaboration\apps.py                                                              4      0      0      0   100%
+collaboration\consumers.py                                                       123     56     30      8    52%   23-61, 67-74, 79-87, 103-104, 107-114, 119->exit, 122-123, 126->exit, 130-132, 148-149, 159-160, 167->exit
+collaboration\middleware.py                                                       23      2      4      0    93%   13-14
+collaboration\migrations\0001_task_comments_and_mentions.py                        7      0      0      0   100%
+collaboration\migrations\0002_activity_and_notifications.py                        6      0      0      0   100%
+collaboration\migrations\__init__.py                                               0      0      0      0   100%
+collaboration\models.py                                                           42      0      0      0   100%
+collaboration\routing.py                                                           3      0      0      0   100%
+collaboration\serializers.py                                                      55      0      6      2    97%   31->45, 56->59
+collaboration\services.py                                                         78      8     28      2    89%   27->exit, 37-38, 47-55, 81->88
+collaboration\test_activity_notifications.py                                      70      0      2      0   100%
+collaboration\test_comments.py                                                    65      0      0      0   100%
+collaboration\tests.py                                                            73      0      2      0   100%
+collaboration\urls.py                                                              3      0      0      0   100%
+collaboration\views.py                                                           143     23     26      8    78%   31-32, 75, 90-99, 120-122, 123->125, 128-131, 141-143, 158, 160, 162, 173->177
+common\__init__.py                                                                 0      0      0      0   100%
+common\test_sanitization.py                                                       67      0      6      0   100%
+common\validators.py                                                              34      2     14      2    92%   42, 75
+config\__init__.py                                                                 0      0      0      0   100%
+config\asgi.py                                                                     8      0      0      0   100%
+config\settings.py                                                                36      1      2      1    95%   59
+config\test_settings.py                                                            3      0      0      0   100%
+config\urls.py                                                                     3      0      0      0   100%
+manage.py                                                                          6      0      2      1    88%   5->exit
+projects\__init__.py                                                               0      0      0      0   100%
+projects\admin.py                                                                 15      0      0      0   100%
+projects\analytics.py                                                             53      2     10      3    92%   43, 45, 86->93
+projects\apps.py                                                                   4      0      0      0   100%
+projects\migrations\0001_initial.py                                                8      0      0      0   100%
+projects\migrations\0002_task.py                                                   7      0      0      0   100%
+projects\migrations\0003_taskdependency.py                                         6      0      0      0   100%
+projects\migrations\0004_task_story_points.py                                      4      0      0      0   100%
+projects\migrations\0005_task_sprint.py                                            5      0      0      0   100%
+projects\migrations\0006_task_analytics_fields.py                                  4      0      0      0   100%
+projects\migrations\0007_alter_project_description_alter_task_description.py       4      0      0      0   100%
+projects\migrations\__init__.py                                                    0      0      0      0   100%
+projects\models.py                                                                72      6      8      2    90%   38, 115, 118, 153, 167, 176
+projects\permissions.py                                                           14      0      4      0   100%
+projects\serializers.py                                                           90      2     34      2    97%   110, 157
+projects\test_analytics.py                                                        46      0      0      0   100%
+projects\tests.py                                                                471      0     18      0   100%
+projects\urls.py                                                                  10      0      0      0   100%
+projects\views.py                                                                131      0     18      2    99%   35->37, 117->119
+sprints\__init__.py                                                                0      0      0      0   100%
+sprints\apps.py                                                                    4      0      0      0   100%
+sprints\chart_views.py                                                            37      0      2      0   100%
+sprints\exceptions.py                                                             16      1      4      1    90%   12
+sprints\migrations\0001_initial.py                                                 8      0      0      0   100%
+sprints\migrations\0002_timeentry.py                                               7      0      0      0   100%
+sprints\migrations\0003_sprint_reporting.py                                       16      0      2      0   100%
+sprints\migrations\__init__.py                                                     0      0      0      0   100%
+sprints\models.py                                                                 39      0      0      0   100%
+sprints\reporting.py                                                              52      1     14      1    97%   57
+sprints\serializers.py                                                            35      0      6      0   100%
+sprints\services.py                                                               18      0      4      0   100%
+sprints\test_backlog.py                                                           83      0     12      0   100%
+sprints\test_reporting.py                                                        193      0      6      0   100%
+sprints\test_sprints.py                                                          136      0     10      0   100%
+sprints\test_time_logging.py                                                     114      0      8      0   100%
+sprints\time_logging.py                                                           40      0      2      0   100%
+sprints\urls.py                                                                    5      0      0      0   100%
+sprints\views.py                                                                  88      1     10      1    98%   88
+--------------------------------------------------------------------------------------------------------------------------
+TOTAL                                                                           4351    176    440     58    94%
